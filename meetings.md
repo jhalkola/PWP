@@ -9,9 +9,9 @@ Overall deadline 1 return was good but main concepts need to be clarified a bit.
 
 ### Action points
 Change actor from entity to property of a movie/series.  
-Structure items under genres.
-Movies under movie list and series under series list.
-Delete client from the diagram and change relationships to represent the new structure.
+Structure items under genres.  
+Movies under movie list and series under series list.  
+Delete client from the diagram and change relationships to represent the new structure.  
 
 
 ### Comments from staff
