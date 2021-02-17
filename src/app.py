@@ -1,8 +1,5 @@
-from flask import Flask, request
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.engine import Engine
-from sqlalchemy import event
-import json
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///movie-tracker.db"
@@ -21,8 +18,8 @@ class Movie(db.Model):
     genre_id = db.Column(db.Integer, db.ForeignKey("genre.id", ondelete="CASCADE"))
     title = db.Column(db.String(64), nullable=False)
     actors = db.Column(db.String(64), nullable=True)
-    release_date = db.Column(db.String(64), nullable=False)
-    score = db.Column(db.Float, nullable=False)
+    release_date = db.Column(db.String(64), nullable=True)
+    score = db.Column(db.Float, nullable=True)
 
     genre = db.relationship("Genre", back_populates="movies")
 
@@ -31,8 +28,8 @@ class Series(db.Model):
     genre_id = db.Column(db.Integer, db.ForeignKey("genre.id", ondelete="CASCADE"))
     title = db.Column(db.String(64), nullable=False)
     actors = db.Column(db.String(64), nullable=True)
-    release_date = db.Column(db.String(64), nullable=False)
+    release_date = db.Column(db.String(64), nullable=True)
     score = db.Column(db.Float, nullable=True)
-    seasons = db.Column(db.Integer, default=1)
+    seasons = db.Column(db.Integer, default=1, nullable=False)
 
     genre = db.relationship("Genre", back_populates="series")
