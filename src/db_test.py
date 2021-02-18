@@ -3,7 +3,6 @@ import pytest
 import tempfile
 from sqlalchemy.engine import Engine
 from sqlalchemy import event
-from sqlalchemy.exc import IntegrityError, StatementError
 
 import app
 from app import Movie, Series, Genre
@@ -48,8 +47,8 @@ def _get_series():
         seasons = 5
     )
 
-def _get_genre():
-    return Genre(name="Action")
+def _get_genre(name):
+    return Genre(name=name)
 
     
 def test_create_instances(db_handle):
@@ -63,7 +62,7 @@ def test_create_instances(db_handle):
     # Create everything
     movie = _get_movie()
     series = _get_series()
-    genre = _get_genre()
+    genre = _get_genre("Action")
 
     movie.genre = genre
     series.genre = genre
@@ -85,32 +84,50 @@ def test_create_instances(db_handle):
     assert db_movie in db_genre.movies
     assert db_series in db_genre.series   
     
-# def test_location_sensor_one_to_one(db_handle):
-#     """
-#     Tests that the relationship between sensor and location is one-to-one.
-#     i.e. that we cannot assign the same location for two sensors.
-#     """
-    
-#     location = _get_location()
-#     sensor_1 = _get_sensor(1)
-#     sensor_2 = _get_sensor(2)
-#     sensor_1.location = location
-#     sensor_2.location = location
-#     db_handle.session.add(location)
-#     db_handle.session.add(sensor_1)
-#     db_handle.session.add(sensor_2)    
-#     with pytest.raises(IntegrityError):
-#         db_handle.session.commit()
-        
-def test_genre_ondelete_item(db_handle):
+def test_modifying_item_genre(db_handle):
     """
-    Tests that measurement's sensor foreign key is set to null when the sensor
-    is deleted.
+    Tests that genre changes correctly on movies and series and on genre
+    change the item is moved to correct.
     """
     
     movie = _get_movie()
     series = _get_series()
-    genre = _get_genre()
+    genre1 = _get_genre("Action")
+    genre2 = _get_genre("Crime")
+
+    # give first genre
+    movie.genre = genre1
+    series.genre = genre1
+    db_handle.session.add(movie)
+    db_handle.session.add(series)
+    db_handle.session.commit()
+
+    # change to second genre
+    movie.genre = genre2
+    series.genre = genre2
+    db_handle.session.commit()
+
+    db_genre1 = Genre.query.filter_by(name="Action").first()
+    db_genre2 = Genre.query.filter_by(name="Crime").first()
+    db_movie = Movie.query.first()
+    db_series = Series.query.first()
+    
+    # check correctness of both genres
+    assert len(db_genre1.movies) == 0
+    assert len(db_genre1.series) == 0
+    assert len(db_genre2.movies) == 1
+    assert len(db_genre2.series) == 1
+    assert db_movie.genre == db_genre2
+    assert db_series.genre == db_genre2
+        
+def test_genre_ondelete_item(db_handle):
+    """
+    Tests that genre's movies or series foreign key is set to null when the movie/series is deleted.
+    """
+    
+    movie = _get_movie()
+    series = _get_series()
+    genre = _get_genre("Action")
     movie.genre = genre
     series.genre = genre
     db_handle.session.add(movie)
@@ -119,5 +136,7 @@ def test_genre_ondelete_item(db_handle):
     db_handle.session.delete(movie)
     db_handle.session.delete(series)
     db_handle.session.commit()
-    assert genre.movies is None
-    assert genre.series is None
+
+    # check that movies and series lists are empty
+    assert len(genre.movies) == 0
+    assert len(genre.series) == 0
