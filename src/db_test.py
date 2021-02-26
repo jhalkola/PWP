@@ -3,6 +3,7 @@ import pytest
 import tempfile
 from sqlalchemy.engine import Engine
 from sqlalchemy import event
+from sqlalchemy.exc import IntegrityError
 
 import app
 from app import Movie, Series, Genre
@@ -49,7 +50,6 @@ def _get_series():
 
 def _get_genre(name):
     return Genre(name=name)
-
     
 def test_create_instances(db_handle):
     """
@@ -82,12 +82,79 @@ def test_create_instances(db_handle):
     assert db_movie.genre == db_genre
     assert db_series.genre == db_genre
     assert db_movie in db_genre.movies
-    assert db_series in db_genre.series   
+    assert db_series in db_genre.series
+
+def test_foreignkey_violations(db_handle):
+    """
+    Tests for foreign key violation on movie or series genre.
+    """
+
+    # Create everything
+    movie = _get_movie()
+    series = _get_series()
+
+    with pytest.raises(AttributeError):
+        movie.genre = "Fantasy"
+        series.genre = "Fantasy"
+        db_handle.session.add(movie)
+        db_handle.session.add(series)
+        db_handle.session.commit()
+
+def test_modifying_models(db_handle):
+    '''
+    Test that modifying movie and series attributes works correctly.
+    '''
+
+    movie = _get_movie()
+    series = _get_series()
+    genre = _get_genre("Action")
+
+    movie.genre = genre
+    series.genre = genre
+    db_handle.session.add(movie)
+    db_handle.session.add(series)
+    db_handle.session.commit()
+
+    # modify movie
+    movie.title = "Avengers: Endgame"
+    movie.actors="Robert Downey Jr., Chris Evans"
+    movie.release_date="28-04-2018"
+    movie.score=9.0
+
+    # modify series
+    series.title = "House of Cards"
+    series.actors = "Bryan Cranston, Robert Downey Jr."
+    series.release_date = "20-01-2010"
+    series.score = 9.0
+    series.seasons = 7
+    
+    # modify genre
+    genre.name = "Comedy"
+
+    db_handle.session.commit()
+
+    db_genre = Genre.query.first()
+    db_movie = Movie.query.first()
+    db_series = Series.query.first()
+    
+    # check correctness
+    assert db_movie.title == "Avengers: Endgame"
+    assert db_movie.actors == "Robert Downey Jr., Chris Evans"
+    assert db_movie.release_date == "28-04-2018"
+    assert db_movie.score == 9.0
+
+    assert db_series.title == "House of Cards"
+    assert db_series.actors == "Bryan Cranston, Robert Downey Jr."
+    assert db_series.release_date == "20-01-2010"
+    assert db_series.score == 9.0
+    assert db_series.seasons == 7
+
+    assert db_genre.name == "Comedy"
     
 def test_modifying_item_genre(db_handle):
     """
     Tests that genre changes correctly on movies and series and on genre
-    change the item is moved to correct.
+    change the item is moved to correct. Test that genre's attribute can be changed.
     """
     
     movie = _get_movie()
@@ -130,9 +197,11 @@ def test_genre_ondelete_item(db_handle):
     genre = _get_genre("Action")
     movie.genre = genre
     series.genre = genre
+
     db_handle.session.add(movie)
     db_handle.session.add(series)
     db_handle.session.commit()
+
     db_handle.session.delete(movie)
     db_handle.session.delete(series)
     db_handle.session.commit()
@@ -140,3 +209,33 @@ def test_genre_ondelete_item(db_handle):
     # check that movies and series lists are empty
     assert len(genre.movies) == 0
     assert len(genre.series) == 0
+
+def test_genre_ondelete_genre(db_handle):
+    """
+    Tests that movies or series foreign key and genre is set to null when the genre is deleted.
+    """
+    
+    movie = _get_movie()
+    series = _get_series()
+    genre = _get_genre("Action")
+    movie.genre = genre
+    series.genre = genre
+
+    db_handle.session.add(movie)
+    db_handle.session.add(series)
+    db_handle.session.commit()
+    
+    db_handle.session.delete(genre)
+    db_handle.session.commit()
+
+    # check that movies and series lists are empty
+    
+    db_movie = Movie.query.first()
+    db_series = Series.query.first()
+    
+    # check correctness of both genres
+    assert Genre.query.count() == 0
+    assert db_movie.genre == None
+    assert db_series.genre == None
+    assert db_movie.genre_id == None
+    assert db_series.genre_id == None
