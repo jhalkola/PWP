@@ -25,9 +25,9 @@ Delete client from the diagram and change relationships to represent the new str
 We went through models we had created and small improvements to them. Tests was the main point of the meeting and we went through how we should improve those.
 
 ### Action points
-Tests for model modification
-Test for deleting genre
-Test for foreign key violation of movie/series genre
+Tests for model modification  
+Test for deleting genre  
+Test for foreign key violation of movie/series genre  
 More verbious description of test results
 
 
