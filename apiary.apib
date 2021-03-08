@@ -3,78 +3,318 @@ HOST: https://polls.apiblueprint.org/
 
 # MovieTracker API
 
-Polls is a simple API allowing consumers to view polls and vote in them.
+API for open movie database.
 
-## Questions Collection [/questions]
+# Group Link Relations
 
-### List All Questions [GET]
+This section described custom link relations defined in this API. These are not resources. The API also uses 
+[IANA link relations](http://www.iana.org/assignments/link-relations/link-relations.xhtml) where applicable. 
 
-+ Response 200 (application/json)
+## all-genres
 
-        [
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
-                    }
-                ]
-            }
-        ]
+Leads to collection of all genres.
 
-### Create a New Question [POST]
+## all-movies
 
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
+Leads to collection of all movies known to the API.
 
-+ Request (application/json)
+## all-series
 
-        {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
-        }
+Leads to collection of all series known to the API.
 
-+ Response 201 (application/json)
+## movies-by
+
+Collection of movies in by a genre. This collection can be sorted using query parameter which specifies the genre to use for sorting.
+
+## series-by
+
+Collection of series in by a genre. This collection can be sorted using query parameter which specifies the genre to use for sorting.
+
+## add-movie
+
+This is a control that is used to add a movie to the associated collection resource. The control includes a JSON schema and must be accessed with POST. 
+
+## add-series
+
+This is a control that is used to add a series to the associated collection resource. The control includes a JSON schema and must be accessed with POST.
+
+## delete
+
+Deletes the associated resource.
+
+# Group Profiles
+
+This section includes resource profiles which provide semantic descriptions for the attributes of each resource, as well as the list of controls (by link relation) available from that resource.
+
+## Movie Profile
+
+Profile definition for all movie related resources.
+
+### Link Relations
+
+This section lists all possible link relations associated with movies; not all of them are necessarily present on each resource type. Here are custom link relations for the profile:
+
+ * [add-movie](reference/link-relations/add-movie)
+ * [movies-by](reference/link-relations/movies-by)
+ * [delete](reference/link-relations/delete)
+ 
+The following [IANA RFC5988](http://www.iana.org/assignments/link-relations/link-relations.xhtml) link relations are also used:
+
+ * collection
+ * edit
+
+### Semantic Descriptors
+
+#### Data Type Movie
+
+ * `title`: Title of the movie. Mandatory.
+ * `actors`: List of actors in the movie as a string where names are separated by ",". Optional.
+ * `release_date`: Movie's release date in format (DD-MM-YYYY). Use 01 for month or day if not known. Mandatory
+ * `score`: Score of the movie in Internet Movie Database (IMDb) as a float. Optional.
+ * `genre`: Genre of the movie as a string. Links to Genre. Mandatory.
+ 
+## Series Profile
+
+Profile definition for all series related resources.
+
+### Link Relations
+
+This section lists all possible link relations associated with series; not all of them are necessarily present on each resource type. Here are custom link relations for the profile:
+
+ * [add-series](reference/link-relations/add-series)
+ * [series-by](reference/link-relations/series-by)
+ * [delete](reference/link-relations/delete)
+ 
+The following [IANA RFC5988](http://www.iana.org/assignments/link-relations/link-relations.xhtml) link relations are also used:
+
+ * collection
+ * edit
+
+### Semantic Descriptors
+
+#### Data Type Series
+
+ * `title`: Title of the movie. Mandatory.
+ * `actors`: List of actors in the movie as a string where names are separated by ",". Optional.
+ * `release_date`: Movie's release date in format (DD-MM-YYYY). Use 01 for month or day if not known. Mandatory
+ * `score`: Score of the movie in Internet Movie Database (IMDb) as a float. Optional.
+ * `seasons`: Number of seasons the series has as Integer. Optional.
+ * `genre`: Genre of the movie as a string. Links to Genre. Mandatory.
+ 
+## Genre Profile
+
+Profile definition for all genre related resources.
+
+### Link Relations
+
+This section lists all possible link relations associated with genres; not all of them are necessarily present on each resource type. Here are custom link relations for the profile:
+
+ * [all-movies](reference/link-relations/all-movies)
+ * [all-series](reference/link-relations/add-series)
+ 
+The following [IANA RFC5988](http://www.iana.org/assignments/link-relations/link-relations.xhtml) link relations are also used:
+
+ * up
+
+### Semantic Descriptors
+
+#### Data Type Genre
+
+ * `name`: Name of the genre. Genres are predefined and more cannot be added.
+ * `movies`: List of movies that belong to the genre. Every item on the list links to a movie resource.
+ * `series`: List of series that belong to the genre. Every item on the list links to a series resource.
+
+# Group Entry
+
+This group contains the entry point of the API
+
+## Entry Point [/api/]
+
+### Get entry point [GET]
+
+Get the API entry point
+
++ Request
 
     + Headers
+    
+            Accept: application/vnd.mason+json
+            
++ Response 200 (application/vnd.mason+json)
 
-            Location: /questions/2
+    + Body
+    
+            {
+                "@controls": {
+                    "all-movies": {
+                        "href": "/api/movies/",
+                        "title": "collection of all movies"
+                    },
+                    "all-series": {
+                        "href": "/api/movies/",
+                        "title": "collection of all series"
+                    },
+                    "all-genres": {
+                        "href": "/api/genres/",
+                        "title": "collection of genres"
+                    }
+                }
+            }
 
+
+# Group Genre
+
+## Genre Collection [/api/genres/]
+
+List of all genres in the API. Genres cannot be edited and more genres cannot be added.
+
+### List all genres [GET]
+
+Get a list of all genres in the API.
+
++ Relation: all-genres
++ Request
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+
++ Response 200 (application/vnd.mason+json)
+    
     + Body
 
             {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
+                "@controls": {
+                    "self": {
+                        "href": "/api/genres/"
+                    },
+                    "all-movies": {
+                        "href": "/api/movies/",
+                        "title": "collection of all movies"
+                    },
+                    "all-series": {
+                        "href": "/api/movies/",
+                        "title": "collection of all series"
+                    }
+                },
+                "items": [
                     {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
+                        "name": "Action",
+                        "@controls": {
+                            "self": {
+                                "href": "/api/genres/action/"
+                            }
+                        }
+                    }, 
+                    {
+                        "name": "Comedy",
+                        "@controls": {
+                            "self": {
+                                "href": "/api/genres/comedy/"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Romance",
+                        "@controls": {
+                            "self": {
+                                "href": "/api/genres/romance/"
+                            }
+                        }
                     }
                 ]
             }
+
+
+## Genre [/api/genres/{genre}/]
+
+Genre queried by name. Has two lists of items, one includes all the series and the other all movies known to the API.
+
++ Parameters
+
+    + genre: action (string) - genre's name
+
+### Get a genre [GET]
+
+Representation of a genre.
+
++ Relation: self
++ Request
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+
++ Response 200 (application/vnd.mason+json)
+    
+    + Body
+
+            {
+                "name": "action",
+                "@controls": {
+                    "self": {
+                        "href": "/api/genres/action/"
+                    },
+                    "up": {
+                        "href": "/api/genres/",
+                        "title": "collection of all movies"
+                    },
+                    "all-series": {
+                        "href": "/api/movies/",
+                        "title": "collection of all series"
+                    }
+                },
+                "items": [ 
+                            "movies": [
+                                        {
+                                            "title": "The Endgame",
+                                            "actors": "Robert Downey Jr., Chris Evans",
+                                            "release_date": "11-04-2019",
+                                            "score": 8.9,
+                                            "@controls": {
+                                                "self": {
+                                                    "href": "/api/movies/the endgame/"
+                                                }
+                                            }
+                                        }, 
+                                        {
+                                            "title": "I Am Mother",
+                                            "actors": "Luke Hawker",
+                                            "release_date": "18-07-2019",
+                                            "score": 6.5,
+                                            "@controls": {
+                                                "self": {
+                                                    "href": "/api/movies/i am mother/"
+                                                }
+                                            }
+                                        }
+                                    ],
+                            "series": [
+                                        {
+                                            "title": "Breaking Bad",
+                                            "actors": "Bryan Cranston ",
+                                            "release_date": "04-08-2018",
+                                            "score": 9.2,
+                                            "@controls": {
+                                                "self": {
+                                                    "href": "/api/series/breaking bad/"
+                                                }
+                                            }
+                                        }, 
+                                        {
+                                            "title": "White Collar",
+                                            "actors": "Matt Bomer ",
+                                            "release_date": "18-07-2009",
+                                            "score": 7.6,
+                                            "@controls": {
+                                                "self": {
+                                                    "href": "/api/series/white collar/"
+                                                }
+                                            }
+                                        }
+                                    ]
+                        ]
+            }
+# Group Movies
+
+# Group Series
