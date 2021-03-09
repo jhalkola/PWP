@@ -193,7 +193,7 @@ Get a list of all genres in the API.
                         "title": "collection of all movies"
                     },
                     "all-series": {
-                        "href": "/api/movies/",
+                        "href": "/api/series/",
                         "title": "collection of all series"
                     }
                 },
@@ -219,6 +219,14 @@ Get a list of all genres in the API.
                         "@controls": {
                             "self": {
                                 "href": "/api/genres/romance/"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Drama",
+                        "@controls": {
+                            "self": {
+                                "href": "/api/genres/drama/"
                             }
                         }
                     }
@@ -250,71 +258,947 @@ Representation of a genre.
     + Body
 
             {
-                "name": "action",
+                "name": "Action",
                 "@controls": {
                     "self": {
                         "href": "/api/genres/action/"
                     },
                     "up": {
                         "href": "/api/genres/",
-                        "title": "collection of all movies"
+                        "title": "List of all genres"
                     },
-                    "all-series": {
-                        "href": "/api/movies/",
-                        "title": "collection of all series"
+                    "movies-by": {
+                        "href": "/api/genres/action/movies/",
+                        "title": "Collection of all movies in the genre"
+                    },
+                    "series-by": {
+                        "href": "/api/genres/action/series/",
+                        "title": "Collection of all series in the genre"
                     }
                 },
                 "items": [ 
-                            "movies": [
-                                        {
-                                            "title": "The Endgame",
-                                            "actors": "Robert Downey Jr., Chris Evans",
-                                            "release_date": "11-04-2019",
-                                            "score": 8.9,
-                                            "@controls": {
-                                                "self": {
-                                                    "href": "/api/movies/the endgame/"
-                                                }
-                                            }
-                                        }, 
-                                        {
-                                            "title": "I Am Mother",
-                                            "actors": "Luke Hawker",
-                                            "release_date": "18-07-2019",
-                                            "score": 6.5,
-                                            "@controls": {
-                                                "self": {
-                                                    "href": "/api/movies/i am mother/"
-                                                }
-                                            }
-                                        }
-                                    ],
-                            "series": [
-                                        {
-                                            "title": "Breaking Bad",
-                                            "actors": "Bryan Cranston ",
-                                            "release_date": "04-08-2018",
-                                            "score": 9.2,
-                                            "@controls": {
-                                                "self": {
-                                                    "href": "/api/series/breaking bad/"
-                                                }
-                                            }
-                                        }, 
-                                        {
-                                            "title": "White Collar",
-                                            "actors": "Matt Bomer ",
-                                            "release_date": "18-07-2009",
-                                            "score": 7.6,
-                                            "@controls": {
-                                                "self": {
-                                                    "href": "/api/series/white collar/"
-                                                }
-                                            }
-                                        }
-                                    ]
-                        ]
+                    [
+                        {
+                            "title": "Avengers: Endgame",
+                            "actors": "Robert Downey Jr., Chris Evans",
+                            "release_date": "11-04-2019",
+                            "score": 8.9,
+                            "genre": "Action",
+                            "@controls": {
+                                "self": {
+                                    "href": "/api/movies/avengers: endgame/"
+                                }
+                            }
+                        }, 
+                        {
+                            "title": "I Am Mother",
+                            "actors": "Luke Hawker",
+                            "release_date": "18-07-2019",
+                            "score": 6.5,
+                            "genre": "Action",
+                            "@controls": {
+                                "self": {
+                                    "href": "/api/movies/i am mother/"
+                                }
+                            }
+                        }
+                    ],
+                    [
+                        {
+                            "title": "Breaking Bad",
+                            "actors": "Bryan Cranston ",
+                            "release_date": "04-08-2018",
+                            "score": 9.2,
+                            "genre": "Action",
+                            "@controls": {
+                                "self": {
+                                    "href": "/api/series/breaking bad/"
+                                }
+                            }
+                        }, 
+                        {
+                            "title": "White Collar",
+                            "actors": "Matt Bomer ",
+                            "release_date": "18-07-2009",
+                            "score": 7.6,
+                            "genre": "Action",
+                            "@controls": {
+                                "self": {
+                                    "href": "/api/series/white collar/"
+                                }
+                            }
+                        }
+                    ]
+                ]
             }
+
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to retrieve a genre that does not exist.
+
+    + Body
+    
+            {
+                "resource_url": "/api/genres/hemuli/",
+                "@error": {
+                    "@message": "Genre not found",
+                    "@messages": [null]
+                }
+            }
+
+
 # Group Movies
 
+## Movie Collection [/api/movies/]
+
+Collection of all movies known to the API. Here more movies can be added to the API.
+
+### Get all movies [GET]
+
+Get list of all movies
+
++ Relation: all-movies
++ Request
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+
++ Response 200 (application/vnd.mason+json)
+
+    + Body
+
+            {
+                "@controls": {
+                    "self": {
+                        "href": "/api/movies/"
+                    },
+                    "all-genres": {
+                        "href": "/api/genres/",
+                        "title": "collection of all genres"
+                    },
+                    "add-movie": {
+                        "href": "/api/movies/",
+                        "title": "collection of all series",
+                        "encoding": "json",
+                        "method": "POST",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "title": {
+                                    "description": "Movie name",
+                                    "type": "string"
+                                },
+                                "actors": {
+                                    "description": "List of actors",
+                                    "type": "string",
+                                    "pattern": ""
+                                },
+                                "release_date": {
+                                    "description": "Release date of the movie",
+                                    "type": "string",
+                                    "pattern": "^[0-3][0-9]-[01][0-9]-[0-9]{4}$"
+                                },
+                                "score": {
+                                    "description": "IMDd score of the movie",
+                                    "type": "number"
+                                },
+                                "genre": {
+                                    "description": "Name of the genre",
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["title", "release_date", "genre"]
+                        }
+                    }
+                },
+                "items": [ 
+                    {
+                        "title": "Avengers: Endgame",
+                        "actors": "Robert Downey Jr., Chris Evans",
+                        "release_date": "11-04-2019",
+                        "score": 8.9,
+                        "genre": "Action",
+                        "@controls": {
+                            "self": {
+                                "href": "/api/movies/avengers: endgame/"
+                            }
+                        }
+                    }, 
+                    {
+                        "title": "I Am Mother",
+                        "actors": "Luke Hawker",
+                        "release_date": "18-07-2019",
+                        "score": 6.5,
+                        "genre": "Action",
+                        "@controls": {
+                            "self": {
+                                "href": "/api/movies/i am mother/"
+                            }
+                        }
+                    }
+                ]
+            }
+
+### Add movie [POST]
+
+Add a movie to the API
+
++ Relation: add-movie
++ Request
+
+    + Content Type
+    
+            Accept: 
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+            
+    + Body
+    
+            {
+                "title": "Edge of Tomorrow",
+                "actors": "Tom Cruise ",
+                "release_date": "28-05-2014",
+                "score": 7.9,
+                "genre": "Action"
+            }
+
++ Response 201
+
+    + Headers
+    
+            Location: /api/movies/edge of tomorrow/
+
++ Response 400 (application/vnd.mason+json)
+
+    The client is trying to send a JSON document that doesn't validate against the schema.
+
+    + Body
+    
+            {
+                "resource_url": "/api/movies/avengers: endgame/",
+                "@error": {
+                    "@message": "Invalid JSON document",
+                    "@messages": [
+                        ""
+                    ]
+                }
+            }
+
++ Response 409 (application/vnd.mason+json)
+
+    Movie already exists in the API.
+
+    + Body
+    
+            {
+                "resource_url": "/api/movies/avengers: endgame/",
+                "@error": {
+                    "@message": "Already exists",
+                    "@messages": [
+                        "Movie named Avengers: Endgame already exists."
+                    ]
+                }
+            }
+
+
++ Response 415 (application/vnd.mason+json)
+
+    The client sent a request with the wrong content type or the request body was not valid JSON.
+
+    + Body
+        
+            {
+                "resource_url": "/api/movies/avengers: endgame/",
+                "@error": {
+                    "@message": "Unsupported media type",
+                    "@messages": [
+                        "Use JSON"
+                    ]
+                }
+            }
+
+
+## Movies by Genre [/api/genres/{genre}/movies/]
+
+This is a movie collection belonging to the given genre.
+
++ Parameters
+
+    + genre: action (string)
+
+### List movies by genre [GET]
+
+Get a list of movies belonging to one genre.
+
++ Relation: movies-by
++ Request
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+    
++ Response 200 (application/vnd.mason+json)
+
+    + Body
+    
+            {
+                "name": "Action",
+                "@controls": {
+                    "self": {
+                        "href": "/api/genres/action/movies/"
+                    },
+                    "up": {
+                        "href": "/api/genres/action/",
+                        "title": "A collection of action movies"
+                    }
+                },
+                "items": [ 
+                    {
+                        "title": "Avengers: Endgame",
+                        "actors": "Robert Downey Jr., Chris Evans",
+                        "release_date": "11-04-2019",
+                        "score": 8.9,
+                        "@controls": {
+                            "self": {
+                                "href": "/api/genres/action/movies/avengers: endgame/"
+                            }
+                        }
+                    }, 
+                    {
+                        "title": "John Wick",
+                        "actors": "Keanu Reeves",
+                        "release_date": "24-10-2014",
+                        "score": 7.4,
+                        "@controls": {
+                            "self": {
+                                "href": "/api/genres/action/movies/john wick/"
+                            }
+                        }
+                    }
+                ]
+            }
+
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to retrieve list of movies by genre that doesn't exist.
+
+    + Body
+    
+            {
+                "resource_url": "/api/genres/hemuli/movies/",
+                "@error": {
+                    "@message": "Genre not found",
+                    "@messages": [null]
+                }
+            }
+
+
+## Movie [/api/movies/{movie}/]
+
+Representation of a movie. Here the movie properties can be edited or the movie can be deleted from the API.
+
++ Parameters
+
+    + movie: avengers: endgame (string)
+
+### Get movie [GET]
+
+Get representation of a movie
+
++ Relation: self
++ Request
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+
++ Response 200 (application/vnd.mason+json)
+
+    + Body
+
+            {
+                "title": "Avengers: Endgame",
+                "actors": "Robert Downey Jr., Chris Evans",
+                "release_date": "11-04-2019",
+                "score": 8.9,
+                "genre": "Action",
+                "@controls": {
+                    "self": {
+                        "href": "/api/movies/"
+                    },
+                    "collection": {
+                        "href": "/api/movies/",
+                        "title": "collection of all movies"
+                    },
+                    "edit": {
+                        "href": "/api/movies/avengers: endgame",
+                        "title": "Edit movie properties",
+                        "encoding": "json",
+                        "method": "PUT",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "title": {
+                                    "description": "Movie name",
+                                    "type": "string"
+                                },
+                                "actors": {
+                                    "description": "List of actors",
+                                    "type": "string",
+                                    "pattern": ""
+                                },
+                                "release_date": {
+                                    "description": "Release date of the movie",
+                                    "type": "string",
+                                    "pattern": "^[0-3][0-9]-[01][0-9]-[0-9]{4}$"
+                                },
+                                "score": {
+                                    "description": "IMDd score of the movie",
+                                    "type": "number"
+                                },
+                                "genre": {
+                                    "description": "Name of the genre",
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["title", "release_date", "genre"]
+                        }
+                    },
+                    "delete": {
+                        "href": "/api/movies/avengers: endgame",
+                        "title": "Delete this movie",
+                        "method": "DELETE"
+                    }
+                }
+            }
+
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to retrieve a movie that does not exist.
+
+    + Body
+    
+            {
+                "resource_url": "/api/movies/lalaland/",
+                "@error": {
+                    "@message": "Movie not found",
+                    "@messages": [null]
+                }
+            }
+
+### Edit movie [PUT]
+
+Edit movie
+
++ Relation: edit
++ Request (application/json)
+
+    + Headers
+        
+            Accept: application/vnd.mason+json
+        
+    + Body
+    
+            {
+                "title": "Avengers: Endgame",
+                "actors": "Robert Downey Jr., Chris Evans, Scarlett Johansson",
+                "release_date": "11-04-2019",
+                "score": 8.9,
+                "genre": "Action"
+            }
+        
++ Response 204
+
++ Response 400 (application/vnd.mason+json)
+
+    The client is trying to send a JSON document that doesn't validate against the schema, or has non-existent release date.
+
+    + Body
+    
+            {
+                "resource_url": "/api/movies/avengers: endgame/",
+                "@error": {
+                    "@message": "Something went wrong",
+                    "@messages": [
+                        ""
+                    ]
+                }
+            }
+
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to edit a movie that doesn't exist. 
+
+    + Body
+    
+            {
+                "resource_url": "/api/movies/superman/",
+                "@error": {
+                    "@message": "movie not found",
+                    "@messages": [
+                        ""
+                    ]
+                }
+            }
+        
++ Response 415 (application/vnd.mason+json)
+
+    The client sent a request with the wrong content type or the request body was not valid JSON.
+
+    + Body
+        
+            {
+                "resource_url": "/api/movies/avengers: endgame/",
+                "@error": {
+                    "@message": "Unsupported media type",
+                    "@messages": [
+                        "Use JSON"
+                    ]
+                }
+            }
+
+
+### Delete movie [DELETE]
+
+Deletes the movie.
+
++ Relation: delete
++ Request
+
+    + Headers
+        
+            Accept: application/vnd.mason+json
+        
++ Response 204
+
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to delete a movie that doesn't exist
+
+    + Body
+    
+            {
+                "resource_url": "/api/movies/superman/",
+                "@error": {
+                    "@message": "Series not found",
+                    "@messages": [null]
+                }
+            }
+
+
 # Group Series
+
+## Series Collection [/api/series/]
+
+List of all series in the API. Series can be added or the collection can be requsted.
+
+### List all series [GET]
+
+Get a list of all series in the API.
+
++ Relation: all-series
++ Request
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+
++ Response 200 (application/vnd.mason+json)
+
+    + Body
+    
+            {
+                "@controls": {
+                    "self": {
+                        "href": "/api/series/"
+                    },
+                    "all-genres": {
+                        "href": "/api/genres/",
+                        "title": "collection of all genres"
+                    }
+                },
+                "items": [ 
+                    {
+                        "title": "Breaking Bad",
+                        "actors": "Bryan Cranston ",
+                        "release_date": "04-08-2018",
+                        "score": 9.2,
+                        "seasons": 4,
+                        "genre": "Action",
+                        "@controls": {
+                            "self": {
+                                "href": "/api/series/breaking bad/"
+                            }
+                        }
+                    }, 
+                    {
+                        "title": "White Collar",
+                        "actors": "Matt Bomer ",
+                        "release_date": "18-07-2009",
+                        "score": 7.6,
+                        "seasons": 1,
+                        "genre": "Action",
+                        "@controls": {
+                            "self": {
+                                "href": "/api/series/white collar/"
+                            }
+                        }
+                    }
+                ]
+            }
+
+
+### Add series [POST]
+
+Add a series to the API
+
++ Relation: add-series
++ Request
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+            
+    + Body
+    
+            {
+                "title": "The Queens Gambit",
+                "actors": "Anya Taylor-Joy ",
+                "release_date": "27-08-2020",
+                "score": 8.5,
+                "seasons": 1,
+                "genre": "Drama"
+            }
+
++ Response 201
+
+    + Headers
+    
+            Location: /api/series/the queens gambit/
+
++ Response 400 (application/vnd.mason+json)
+
+    The client is trying to send a JSON document that doesn't validate against the schema.
+
+    + Body
+    
+            {
+                "resource_url": "/api/series/the queens gambit/",
+                "@error": {
+                    "@message": "Invalid JSON document",
+                    "@messages": [
+                        ""
+                    ]
+                }
+            }
+
++ Response 409 (application/vnd.mason+json)
+
+    Series already exists in the API.
+
+    + Body
+    
+            {
+                "resource_url": "/api/series/white collar/",
+                "@error": {
+                    "@message": "Already exists",
+                    "@messages": [
+                        "Series named White Colalr already exists."
+                    ]
+                }
+            }
+
+
++ Response 415 (application/vnd.mason+json)
+
+    The client sent a request with the wrong content type or the request body was not valid JSON.
+
+    + Body
+        
+            {
+                "resource_url": "/api/series/the queens gambit/",
+                "@error": {
+                    "@message": "Unsupported media type",
+                    "@messages": [
+                        "Use JSON"
+                    ]
+                }
+            }
+
+
+## Series by Genre [/api/genres/{genre}/series/]
+
+This is a series collection belonging to the given genre.
+
++ Parameters
+
+    + genre: action (string)
+
+### List series by genre [GET]
+
+Get a list of series belonging to one genre.
+
++ Relation: series-by
++ Request
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+    
++ Response 200 (application/vnd.mason+json)
+
+    + Body
+    
+            {
+                "name": "Action",
+                "@controls": {
+                    "self": {
+                        "href": "/api/genres/action/series/"
+                    },
+                    "up": {
+                        "href": "/api/genres/action/",
+                        "title": "A collection of action series"
+                    }
+                },
+                "items": [ 
+                    {
+                        "title": "Breaking Bad",
+                        "actors": "Bryan Cranston ",
+                        "release_date": "04-08-2018",
+                        "score": 9.2,
+                        "genre": "Action",
+                        "@controls": {
+                            "self": {
+                                "href": "/api/series/breaking bad/"
+                            }
+                        }
+                    }, 
+                    {
+                        "title": "White Collar",
+                        "actors": "Matt Bomer ",
+                        "release_date": "18-07-2009",
+                        "score": 7.6,
+                        "genre": "Action",
+                        "@controls": {
+                            "self": {
+                                "href": "/api/series/white collar/"
+                            }
+                        }
+                    }
+                ]
+            }
+
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to retrieve list of movies by genre that doesn't exist.
+
+    + Body
+    
+            {
+                "resource_url": "/api/genres/hemuli/movies/",
+                "@error": {
+                    "@message": "Genre not found",
+                    "@messages": [null]
+                }
+            }
+
+
+## Series [/api/series/{series}]
+
+Series item in the API. Series can be added or the collection can be requsted.
+
++ Parameters
+
+    + series: White Collar (string)
+
+### Get series [GET]
+
+Get representation of a series
+
++ Relation: self
++ Request
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+
++ Response 200 (application/vnd.mason+json)
+
+    + Body
+
+            {
+                "title": "White Collar",
+                "actors": "Matt Bomer ",
+                "release_date": "18-07-2009",
+                "score": 7.6,
+                "seasons": 1,
+                "genre": "Action",
+                "@controls": {
+                    "self": {
+                        "href": "/api/series/white collar/"
+                    },
+                    "collection": {
+                        "href": "/api/series/",
+                        "title": "collection of all series"
+                    },
+                    "edit": {
+                        "href": "/api/series/white collar/",
+                        "title": "Edit movie properties",
+                        "encoding": "json",
+                        "method": "PUT",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "title": {
+                                    "description": "Series name",
+                                    "type": "string"
+                                },
+                                "actors": {
+                                    "description": "actors of the series",
+                                    "type": "string"
+                                },
+                                "release_date": {
+                                    "description": "Formed",
+                                    "type": "string",
+                                    "pattern": "^[0-9]{4}-[01][0-9]-[0-3][0-9]$"
+                                },
+                                "score": {
+                                    "description": "Disbanded",
+                                    "type": "number"
+                                },
+                                "seasons": {
+                                    "description": "Number of seasons",
+                                    "type": "number"
+                                },
+                                "genre": {
+                                    "description": "Genre of the series",
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["title", "release_date", "genre"]
+                        }
+                    },
+                    "delete": {
+                        "href": "/api/series/white collar/",
+                        "title": "Delete this series",
+                        "method": "DELETE"
+                    }
+                }
+            }
+
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to retrieve a movie that does not exist.
+
+    + Body
+    
+            {
+                "resource_url": "/api/movies/lalaland/",
+                "@error": {
+                    "@message": "Movie not found",
+                    "@messages": [null]
+                }
+            }
+
+### Edit series [PUT]
+
+Edit series
+
++ Relation: edit
++ Request (application/json)
+
+    + Headers
+        
+            Accept: application/vnd.mason+json
+        
+    + Body
+    
+            {
+                "title": "White Collar",
+                "actors": "Matt Bomer ",
+                "release_date": "18-07-2009",
+                "score": 7.6,
+                "seasons: 1,
+                "genre": "Action"
+            }
+        
++ Response 204
+
++ Response 400 (application/vnd.mason+json)
+
+    The client is trying to send a JSON document that doesn't validate against the schema, or has non-existent release date.
+
+    + Body
+    
+            {
+                "resource_url": "/api/series/white collar/",
+                "@error": {
+                    "@message": "Something went wrong",
+                    "@messages": [
+                        ""
+                    ]
+                }
+            }
+
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to edit a series that doesn't exist. 
+
+    + Body
+    
+            {
+                "resource_url": "/api/series/white collar/",
+                "@error": {
+                    "@message": "Series not found",
+                    "@messages": [
+                        ""
+                    ]
+                }
+            }
+        
++ Response 415 (application/vnd.mason+json)
+
+    The client sent a request with the wrong content type or the request body was not valid JSON.
+
+    + Body
+        
+            {
+                "resource_url": "/api/series/white collar/",
+                "@error": {
+                    "@message": "Unsupported media type",
+                    "@messages": [
+                        "Use JSON"
+                    ]
+                }
+            }
+
+
+### Delete Series [DELETE]
+
+Deletes the series.
+
++ Relation: delete
++ Request
+
+    + Headers
+        
+            Accept: application/vnd.mason+json
+        
++ Response 204
+
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to delete a series that doesn't exist
+
+    + Body
+    
+            {
+                "resource_url": "/api/series/the mandalorian/",
+                "@error": {
+                    "@message": "Series not found",
+                    "@messages": [null]
+                }
+            }
