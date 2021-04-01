@@ -18,14 +18,17 @@ Delete client from the diagram and change relationships to represent the new str
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
 
 ## Meeting 2.
-* **DATE:**
-* **ASSISTANTS:**
+* **DATE: 26.2.2021**
+* **ASSISTANTS: Marta Cortes Orduna**
 
 ### Minutes
-*Summary of what was discussed during the meeting*
+We went through models we had created and small improvements to them. Tests was the main point of the meeting and we went through how we should improve those.
 
 ### Action points
-*List here the actions points discussed with assistants*
+Tests for model modification  
+Test for deleting genre  
+Test for foreign key violation of movie/series genre  
+More verbious description of test results
 
 
 ### Comments from staff
