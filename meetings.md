@@ -35,14 +35,19 @@ More verbious description of test results
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
 
 ## Meeting 3.
-* **DATE:**
-* **ASSISTANTS:**
+* **DATE: 23.3.2021**
+* **ASSISTANTS: Mika Oja**
 
 ### Minutes
-*Summary of what was discussed during the meeting*
+We went through our Apiary documentation and identified some missing elements, such as namespace and controls for profiles. Adding movies and series also was recommended to move to movies by genre and series by genre for easily link the genre and item. Other changes that were discussed were removing items from genre and adding more to the REST conformance part in project wiki. 
 
 ### Action points
-*List here the actions points discussed with assistants*
+Create unique identifier for each movie and series (random uuid auto-generated).  
+Remove items from genre.  
+Rename movies-by/series-by to movies-by-genre/series-by-genre.  
+Move add-movie/add-series to movies-by-genre/series-by-genre.  
+Add namespace and profile controls to Apiary examples.  
+Add more information to REST conformance part in wiki.  
 
 
 ### Comments from staff
