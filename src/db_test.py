@@ -1,6 +1,8 @@
 import os
+import uuid
 import pytest
 import tempfile
+import shortuuid
 from sqlalchemy.engine import Engine
 from sqlalchemy import event
 from sqlalchemy.exc import IntegrityError
@@ -31,9 +33,13 @@ def db_handle():
     os.close(db_fd)
     os.unlink(db_fname)
 
+def _get_uuid():
+    return shortuuid.uuid()
+
 def _get_movie():
     return Movie(
         title="The Avengers",
+        uuid=_get_uuid(),
         actors="Robert Downey Jr.",
         release_date="11-04-2012",
         score=8.0
@@ -42,6 +48,7 @@ def _get_movie():
 def _get_series():
     return Series(
         title = "Breaking Bad",
+        uuid=_get_uuid(),
         actors = "Bryan Cranston",
         release_date = "20-01-2008",
         score = 9.5,

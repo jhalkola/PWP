@@ -1,3 +1,5 @@
+from enum import unique
+import uuid
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
@@ -17,6 +19,7 @@ class Movie(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     genre_id = db.Column(db.Integer, db.ForeignKey("genre.id", ondelete="CASCADE"))
     title = db.Column(db.String(64), nullable=False)
+    uuid = db.Column(db.String(64), nullable=False, unique=True)
     actors = db.Column(db.String(64), nullable=True)
     release_date = db.Column(db.String(64), nullable=True)
     score = db.Column(db.Float, nullable=True)
@@ -27,6 +30,7 @@ class Series(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     genre_id = db.Column(db.Integer, db.ForeignKey("genre.id", ondelete="CASCADE"))
     title = db.Column(db.String(64), nullable=False)
+    uuid = db.Column(db.String(64), nullable=False, unique=True)
     actors = db.Column(db.String(64), nullable=True)
     release_date = db.Column(db.String(64), nullable=True)
     score = db.Column(db.Float, nullable=True)
