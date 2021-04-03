@@ -1,7 +1,7 @@
 import json
 import shortuuid
 from flask import Response, request, url_for
-from .constants import *
+from movietracker.constants import *
 
 
 class MasonBuilder(dict):

@@ -1,6 +1,7 @@
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from movietracker.constants import *
 
 db = SQLAlchemy()
 
@@ -31,5 +32,13 @@ def create_app(test_config=None):
     app.cli.add_command(models.init_db_command)
     app.cli.add_command(models.generate_test_data)
     app.register_blueprint(api.api_bp)
+
+    @app.route(LINK_RELATIONS_URL)
+    def send_link_relations():
+        return "link relations"
+
+    @app.route("/profiles/<profile>/")
+    def send_profile(profile):
+        return "you requests {} profile".format(profile)
 
     return app
