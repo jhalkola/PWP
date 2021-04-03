@@ -15,7 +15,8 @@ The database management system is SQLite with version 3.33.0
 Requirements.txt has all the needed libraries. To install everything required, run command `python -m pip install -r requirements.txt` while in folder where requirements.txt is located.
 
 Before we can initialize test db and give it some test data we have to set two environment variables. First `set FLASK_APP=movietracker` and next `set FLASK_ENV=development`. These set the flask app name and enable development mode for the testing the API.  
-Next, initialize the database by running `flask init-db` after which use `flask testgen` to generate some test data to the db.
+Next, initialize the database by running `flask init-db` after which use `flask testgen` to generate some test data to the db.  
+Lastly, start development server with `flask run`.
 
 Database will have a set of genres, a few movies and series (not all genres have items in them). You can try querying these, here are few example requests to use:  
 * [GET] *insert address here where flask is running*/api/genres/ (all the genres)
