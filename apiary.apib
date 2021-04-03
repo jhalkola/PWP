@@ -151,15 +151,15 @@ Get the API entry point
     + Headers
     
             Accept: application/vnd.mason+json
-            
+ 
 + Response 200 (application/vnd.mason+json)
 
     + Body
-    
+
             {
                 "@namespaces": {
                     "mt": {
-                       "name": "movie-tracker/link-relations#" 
+                       "name": "/movie-tracker/link-relations#" 
                     }
                 },
                 "@controls": {
@@ -197,13 +197,13 @@ Get a list of all genres in the API.
             Accept: application/vnd.mason+json
 
 + Response 200 (application/vnd.mason+json)
-    
+
     + Body
 
             {
                 "@namespaces": {
                     "mt": {
-                       "name": "movie-tracker/link-relations#" 
+                       "name": "/movie-tracker/link-relations#" 
                     }
                 },
                 "@controls": {
@@ -292,12 +292,12 @@ Representation of a genre.
     + Body
 
             {
+                "name": "Action",
                 "@namespaces": {
                     "mt": {
-                       "name": "movie-tracker/link-relations#" 
+                       "name": "/movie-tracker/link-relations#" 
                     }
                 },
-                "name": "Action",
                 "@controls": {
                     "self": {
                         "href": "/api/genres/action/"
@@ -322,7 +322,7 @@ Representation of a genre.
     The client is trying to retrieve a genre that does not exist.
 
     + Body
-    
+
             {
                 "resource_url": "/api/genres/hemuli/",
                 "@error": {
@@ -398,13 +398,9 @@ Get list of all movies
                                 "score": {
                                     "description": "IMDd score of the movie",
                                     "type": "number"
-                                },
-                                "genre": {
-                                    "description": "Name of the genre",
-                                    "type": "string"
                                 }
                             },
-                            "required": ["title", "release_date", "genre"]
+                            "required": ["title", "release_date"]
                         }
                     }
                 },
@@ -465,7 +461,7 @@ Get a list of movies belonging to one genre.
 + Response 200 (application/vnd.mason+json)
 
     + Body
-    
+
             {
                 "name": "Action",
                 "@controls": {
@@ -526,13 +522,12 @@ Add a movie to the API
             Accept: application/vnd.mason+json
             
     + Body
-    
+
             {
                 "title": "Edge of Tomorrow",
                 "actors": "Tom Cruise ",
                 "release_date": "28-05-2014",
-                "score": 7.9,
-                "genre": "Action"
+                "score": 7.8
             }
 
 + Response 201
@@ -546,7 +541,7 @@ Add a movie to the API
     The client is trying to send a JSON document that doesn't validate against the schema.
 
     + Body
-    
+
             {
                 "resource_url": "/api/genres/action/movies/",
                 "@error": {
@@ -568,7 +563,7 @@ Add a movie to the API
     The client sent a request with the wrong content type or the request body was not valid JSON.
 
     + Body
-        
+
             {
                 "resource_url": "/api/genres/action/movies/",
                 "@error": {
@@ -585,13 +580,13 @@ Add a movie to the API
             }
 
 
-## Movie [/api/movies/{movie}/]
+## Movie [/api/movies/{uuid}/]
 
 Representation of a movie. Here the movie properties can be edited or the movie can be deleted from the API.
 
 + Parameters
 
-    + movie: avengers: endgame (string)
+    + uuid: H7nFHeUWv6r2XNqfxV5kKV (string)
 
 ### Get movie [GET]
 
@@ -627,6 +622,10 @@ Get representation of a movie
                         "href": "/api/movies/",
                         "title": "collection of all movies"
                     },
+                    "mt:movies-by-genre": {
+                        "href": "/api/genres/action/movies/",
+                        "title": "collection of all movies in genre"
+                    },
                     "edit": {
                         "href": "/api/movies/H7nFHeUWv6r2XNqfxV5kKV/",
                         "title": "Edit movie properties",
@@ -652,13 +651,9 @@ Get representation of a movie
                                 "score": {
                                     "description": "IMDd score of the movie",
                                     "type": "number"
-                                },
-                                "genre": {
-                                    "description": "Name of the genre",
-                                    "type": "string"
                                 }
                             },
-                            "required": ["title", "release_date", "genre"]
+                            "required": ["title", "release_date"]
                         }
                     },
                     "mt:delete": {
@@ -674,7 +669,7 @@ Get representation of a movie
     The client is trying to retrieve a movie that does not exist.
 
     + Body
-    
+
             {
                 "resource_url": "/api/movies/lalaland/",
                 "@error": {
@@ -688,6 +683,7 @@ Get representation of a movie
                 }
             }
 
+
 ### Edit movie [PUT]
 
 Edit movie
@@ -696,17 +692,16 @@ Edit movie
 + Request (application/json)
 
     + Headers
-        
+
             Accept: application/vnd.mason+json
-        
+
     + Body
-    
+
             {
                 "title": "Avengers: Endgame",
                 "actors": "Robert Downey Jr., Chris Evans, Scarlett Johansson",
                 "release_date": "11-04-2019",
-                "score": 8.9,
-                "genre": "Action"
+                "score": 8.9
             }
         
 + Response 204
@@ -716,7 +711,7 @@ Edit movie
     The client is trying to send a JSON document that doesn't validate against the schema, or has non-existent release date.
 
     + Body
-    
+
             {
                 "resource_url": "/api/movies/H7nFHeUWv6r2XNqfxV5kKV/",
                 "@error": {
@@ -737,7 +732,7 @@ Edit movie
     The client is trying to edit a movie that doesn't exist. 
 
     + Body
-    
+
             {
                 "resource_url": "/api/movies/superman/",
                 "@error": {
@@ -758,7 +753,7 @@ Edit movie
     The client sent a request with the wrong content type or the request body was not valid JSON.
 
     + Body
-        
+
             {
                 "resource_url": "/api/movies/H7nFHeUWv6r2XNqfxV5kKV/",
                 "@error": {
@@ -793,7 +788,7 @@ Deletes the movie.
     The client is trying to delete a movie that doesn't exist
 
     + Body
-    
+
             {
                 "resource_url": "/api/movies/superman/",
                 "@error": {
@@ -828,11 +823,11 @@ Get a list of all series in the API.
 + Response 200 (application/vnd.mason+json)
 
     + Body
-    
+
             {
                 "@namespaces": {
                     "mt": {
-                       "name": "movie-tracker/link-relations#" 
+                       "name": "/movie-tracker/link-relations#" 
                     }
                 },
                 "@controls": {
@@ -903,7 +898,7 @@ Get a list of series belonging to one genre.
 + Response 200 (application/vnd.mason+json)
 
     + Body
-    
+
             {
                 "name": "Action",
                 "@controls": {
@@ -920,8 +915,7 @@ Get a list of series belonging to one genre.
                         "title": "Breaking Bad",
                         "actors": "Bryan Cranston ",
                         "release_date": "04-08-2018",
-                        "score": 9.2,
-                        "genre": "Action",
+                        "score": 9.2
                         "@controls": {
                             "self": {
                                 "href": "/api/genres/action/series/X7vU9WcbzbicpAardkdprT/"
@@ -935,8 +929,7 @@ Get a list of series belonging to one genre.
                         "title": "White Collar",
                         "actors": "Matt Bomer ",
                         "release_date": "18-07-2009",
-                        "score": 7.6,
-                        "genre": "Action",
+                        "score": 7.6
                         "@controls": {
                             "self": {
                                 "href": "/api/genres/action/series/X7vU9WcbzbicpAardkdprT/"
@@ -954,7 +947,7 @@ Get a list of series belonging to one genre.
     The client is trying to retrieve list of series by genre that doesn't exist.
 
     + Body
-    
+
             {
                 "resource_url": "/api/genres/hemuli/series/",
                 "@error": {
@@ -981,14 +974,13 @@ Add a series to the API
             Accept: application/vnd.mason+json
             
     + Body
-    
+
             {
                 "title": "The Queens Gambit",
                 "actors": "Anya Taylor-Joy ",
                 "release_date": "27-08-2020",
                 "score": 8.5,
-                "seasons": 1,
-                "genre": "Drama"
+                "seasons": 1
             }
 
 + Response 201
@@ -1002,7 +994,7 @@ Add a series to the API
     The client is trying to send a JSON document that doesn't validate against the schema.
 
     + Body
-    
+
             {
                 "resource_url": "/api/genres/action/series/",
                 "@error": {
@@ -1024,7 +1016,7 @@ Add a series to the API
     The client sent a request with the wrong content type or the request body was not valid JSON.
 
     + Body
-        
+
             {
                 "resource_url": "/api/genres/action/series/",
                 "@error": {
@@ -1041,13 +1033,13 @@ Add a series to the API
             }
 
 
-## Series [/api/series/{series}]
+## Series [/api/series/{uuid}]
 
 Series item in the API. Series can be added or the collection can be requsted.
 
 + Parameters
 
-    + series: White Collar (string)
+    + uuid: DFLPUJZQpFJjFeAZxwvz7j (string)
 
 ### Get series [GET]
 
@@ -1073,7 +1065,7 @@ Get representation of a series
                 "genre": "Action",
                 "@namespaces": {
                     "mt": {
-                       "name": "movie-tracker/link-relations#" 
+                       "name": "/movie-tracker/link-relations#" 
                     }
                 },
                 "@controls": {
@@ -1083,6 +1075,10 @@ Get representation of a series
                     "collection": {
                         "href": "/api/series/",
                         "title": "collection of all series"
+                    },
+                    "mt:series-by-genre": {
+                        "href": "/api/genres/action/series/",
+                        "title": "collection of all series in genre"
                     },
                     "edit": {
                         "href": "/api/series/DFLPUJZQpFJjFeAZxwvz7j/",
@@ -1112,13 +1108,9 @@ Get representation of a series
                                 "seasons": {
                                     "description": "Number of seasons",
                                     "type": "number"
-                                },
-                                "genre": {
-                                    "description": "Genre of the series",
-                                    "type": "string"
                                 }
                             },
-                            "required": ["title", "release_date", "genre"]
+                            "required": ["title", "release_date"]
                         }
                     },
                     "mt:delete": {
@@ -1134,7 +1126,7 @@ Get representation of a series
     The client is trying to retrieve a series that does not exist.
 
     + Body
-    
+
             {
                 "resource_url": "/api/series/lalaland/",
                 "@error": {
@@ -1160,14 +1152,13 @@ Edit series
             Accept: application/vnd.mason+json
         
     + Body
-    
+
             {
                 "title": "White Collar",
                 "actors": "Matt Bomer ",
                 "release_date": "18-07-2009",
                 "score": 7.6,
-                "seasons: 1,
-                "genre": "Action"
+                "seasons": 1
             }
         
 + Response 204
@@ -1177,7 +1168,7 @@ Edit series
     The client is trying to send a JSON document that doesn't validate against the schema, or has non-existent release date.
 
     + Body
-    
+
             {
                 "resource_url": "/api/series/DFLPUJZQpFJjFeAZxwvz7j/",
                 "@error": {
@@ -1198,7 +1189,7 @@ Edit series
     The client is trying to edit a series that doesn't exist. 
 
     + Body
-    
+
             {
                 "resource_url": "/api/series/DFLPUJZQpFJjFeAZxwvz7j/",
                 "@error": {
@@ -1219,7 +1210,7 @@ Edit series
     The client sent a request with the wrong content type or the request body was not valid JSON.
 
     + Body
-        
+
             {
                 "resource_url": "/api/series/DFLPUJZQpFJjFeAZxwvz7j/",
                 "@error": {
@@ -1254,7 +1245,7 @@ Deletes the series.
     The client is trying to delete a series that doesn't exist
 
     + Body
-    
+
             {
                 "resource_url": "/api/series/the-mandalorian/",
                 "@error": {
