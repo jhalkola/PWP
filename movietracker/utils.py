@@ -86,6 +86,14 @@ class MovieTrackerBuilder(MasonBuilder):
             method="GET",
             title="Collection of all series"
         )
+        
+    def add_control_all_genres(self):
+        self.add_control(
+            "mt:all-genres",
+            url_for("api.genrecollection"),
+            method="GET",
+            title="Collection of all genres"
+        )
 
     def add_control_movies_by_genre(self, genre):
         self.add_control(
@@ -102,7 +110,12 @@ class MovieTrackerBuilder(MasonBuilder):
             method="GET",
             title="Collection of all series in the genre"
         )
-
+        
+    def add_control_edit(self, href, schema):
+        self.add_control("edit", href=href, method="PUT", encoding="json", schema=schema)
+        
+    def add_control_delete(self, href):
+        self.add_control("mt:delete", href=href, method="DELETE")
 
 def create_error_response(status_code, title, message=None):
     resource_url = request.path

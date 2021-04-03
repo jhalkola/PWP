@@ -2,8 +2,7 @@ import json
 from flask import Response, request, url_for
 from flask_restful import Resource
 from jsonschema import validate, ValidationError
-from sqlalchemy.ext.declarative.api import AbstractConcreteBase
-from movietracker.models import Genre, Series
+from movietracker.models import Genre
 from movietracker.constants import *
 from movietracker.utils import MovieTrackerBuilder, create_error_response
 
