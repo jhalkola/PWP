@@ -1,5 +1,4 @@
 import json
-import operator
 from flask import Response, request, url_for
 from flask_restful import Resource
 from jsonschema import validate, ValidationError
