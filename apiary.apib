@@ -557,6 +557,26 @@ Add a movie to the API
                 }
             }
 
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to add movie to genre that does not exist.
+
+    + Body
+
+            {
+                "resource_url": "/api/genres/hemuli/movies/",
+                "@error":{
+                    "@message": "Genre not found",
+                    "@messages":[
+                        "Genre with name 'hemuli' does not exist"
+                    ]
+                },
+                "@controls":{
+                    "profile":{
+                        "href": "/profiles/error/"
+                    }
+                }
+            }
 
 + Response 415 (application/vnd.mason+json)
 
@@ -1010,6 +1030,26 @@ Add a series to the API
                 }
             }
 
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to add series to genre that does not exist.
+
+    + Body
+
+            {
+                "resource_url": "/api/genres/hemuli/series/",
+                "@error":{
+                    "@message": "Genre not found",
+                    "@messages":[
+                        "Genre with name 'hemuli' does not exist"
+                    ]
+                },
+                "@controls":{
+                    "profile":{
+                        "href": "/profiles/error/"
+                    }
+                }
+            }
 
 + Response 415 (application/vnd.mason+json)
 
