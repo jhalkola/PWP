@@ -112,10 +112,20 @@ class MovieTrackerBuilder(MasonBuilder):
         )
         
     def add_control_edit(self, href, schema):
-        self.add_control("edit", href=href, method="PUT", encoding="json", schema=schema)
+        self.add_control(
+            "edit",
+            href=href,
+            method="PUT",
+            encoding="json",
+            schema=schema
+        )
         
     def add_control_delete(self, href):
-        self.add_control("mt:delete", href=href, method="DELETE")
+        self.add_control(
+            "mt:delete",
+            href=href,
+            method="DELETE"
+        )
 
 def create_error_response(status_code, title, message=None):
     resource_url = request.path

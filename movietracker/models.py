@@ -71,7 +71,7 @@ class Series(db.Model):
     def get_schema():
         schema = {
             "type": "object",
-            "required": ["title"]
+            "required": ["title", "seasons"]
         }
         props = schema["properties"] = {}
         props["title"] = {
