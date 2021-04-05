@@ -7,6 +7,9 @@
 
 __Remember to include all required documentation and HOWTOs, including how to create and populate the database, how to run and test the API, the url to the entrypoint and instructions on how to setup and run the client__
 
+## Documentation
+
+API documentation can be found from [Apiary](https://movietrackerapi.docs.apiary.io/#).
 
 ## Movie Tracker Database
 
@@ -18,11 +21,6 @@ Before we can initialize test db and give it some test data we have to set two e
 Next, while in root directory of the project, initialize the database by running `flask init-db` after which use `flask testgen` to generate some test data to the db. Lastly, start development server with `flask run`.
 
 If you want to reset the test db, delete "instance" folder which holds the db then run `flask init-db` and `flask testgen` commands again.
-
-Database will have a set of genres, a few movies and series (not all genres have items in them). You can try querying these, here are few example requests to use:  
-* [GET] *insert address here where flask is running*/api/genres/ (all the genres)
-* [GET] *insert address here where flask is running*/api/genres/action/movies/ (movies in action genre)
-* [GET] *insert address here where flask is running*/api/genres/crime/series/ (series in crime genre)
 
 ### Database tests
 
