@@ -2,9 +2,11 @@ import json
 from flask import Response, request, url_for
 from flask_restful import Resource
 from jsonschema import validate, ValidationError
-from movietracker.models import Genre
+from sqlalchemy.exc import IntegrityError
+from movietracker import db
+from movietracker.models import Genre, Movie, Series
 from movietracker.constants import *
-from movietracker.utils import MovieTrackerBuilder, create_error_response
+from movietracker.utils import MovieTrackerBuilder, create_error_response, get_uuid
 
 class GenreCollection(Resource):
     
@@ -51,6 +53,7 @@ class GenreItem(Resource):
 
 
 class MoviesByGenreCollection(Resource):
+
     def get(self, genre):
         genre = Genre.query.filter_by(name=genre).first()
 
@@ -79,6 +82,53 @@ class MoviesByGenreCollection(Resource):
             body["items"].append(item)
 
         return Response(json.dumps(body), 200, mimetype=MASON)
+
+    def post(self, genre):
+        genre = Genre.query.filter_by(name=genre).first()
+
+        if genre is None:
+            return create_error_response(404,
+                "Genre not found",
+                "Genre with name '{}' does not exist".format(genre)
+            )
+
+        if not request.json:
+            return create_error_response(
+                415, "Unsupported media type",
+                "Requests must be JSON"
+            )
+
+        try:
+            validate(request.json, Movie.get_schema())
+        except ValidationError as e:
+            return create_error_response(400, "Invalid JSON document", str(e))
+
+        for i in request.json:
+            if request.json[i] is None:
+                request.json[i] = None
+
+        movie = Movie(
+            title=request.json["title"],
+            uuid=get_uuid(),
+            actors=request.json["actors"],
+            release_date=request.json["release_date"],
+            score=request.json["score"],
+            genre=genre
+        )
+
+        while True:
+            try:
+                db.session.add(movie)
+                db.session.commit()
+                break
+            except IntegrityError:
+                # Rare case when uuid is already in use and unique nature
+                # raises error. Genereate new uuid. 
+                movie.uuid = get_uuid()
+        
+        return Response(status=201, headers={
+            "Location": url_for("api.movieitem", genre=genre.name, movie=movie.uuid)
+            })
 
 
 class SeriesByGenreCollection(Resource):
