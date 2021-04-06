@@ -1,14 +1,12 @@
 import os
-import uuid
 import pytest
 import tempfile
 import shortuuid
 from sqlalchemy.engine import Engine
 from sqlalchemy import event
-from sqlalchemy.exc import IntegrityError
-
-import app
-from app import Movie, Series, Genre
+from movietracker import db, create_app
+from movietracker.utils import get_uuid
+from movietracker.models import Genre, Movie, Series
 
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
@@ -21,25 +19,25 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
 @pytest.fixture
 def db_handle():
     db_fd, db_fname = tempfile.mkstemp()
-    app.app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + db_fname
-    app.app.config["TESTING"] = True
+    config = {
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///" + db_fname,
+        "TESTING": True
+    }
     
-    with app.app.app_context():
-        app.db.create_all()
+    app = create_app(config)
+    
+    with app.app_context():
+        db.create_all()
         
-    yield app.db
-    
-    app.db.session.remove()
+    yield app
+
     os.close(db_fd)
     os.unlink(db_fname)
-
-def _get_uuid():
-    return shortuuid.uuid()
 
 def _get_movie():
     return Movie(
         title="The Avengers",
-        uuid=_get_uuid(),
+        uuid=get_uuid(),
         actors="Robert Downey Jr.",
         release_date="11-04-2012",
         score=8.0
@@ -48,7 +46,7 @@ def _get_movie():
 def _get_series():
     return Series(
         title = "Breaking Bad",
-        uuid=_get_uuid(),
+        uuid=get_uuid(),
         actors = "Bryan Cranston",
         release_date = "20-01-2008",
         score = 9.5,
