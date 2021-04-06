@@ -202,6 +202,7 @@ class TestGenreColletion(object):
         # check that items are valid
         for item in body["items"]:
             assert "name" in item
+
             _check_control_get_method("self", client, item)
             _check_control_get_method("profile", client, item)
 
@@ -222,11 +223,115 @@ class TestGenreItem(object):
         _check_control_get_method("mt:movies-by-genre", client, body)
         _check_control_get_method("mt:series-by-genre", client, body)
 
-        # test invalid request
+        # test with invalid genre
         response = client.get(self.INVALID_URL)
         assert response.status_code == 404
 
 
-class TestByGenreCollections(object):
-    pass
-            
+class TestMoviesByGenreCollection(object):
+
+    RESOURCE_URL = "/api/genres/test-genre-1/movies/"
+    INVALID_URL = "/api/genres/non-genre-x/movies/"
+
+    def test_get(self, client):
+        # test valid request
+        response = client.get(self.RESOURCE_URL)
+        assert response.status_code == 200
+        body = json.loads(response.data)
+        # _check_namespace(client, body)
+        _check_control_get_method("self", client, body)
+        _check_control_get_method("up", client, body)
+        # check that two genres are found
+        assert len(body["items"]) == 2
+        # check that items are valid
+        for item in body["items"]:
+            assert "title" in item
+            assert "actors" in item
+            assert "release_date" in item
+            assert "score" in item
+
+            _check_control_get_method("self", client, item)
+            _check_control_get_method("profile", client, item)
+
+        # test with invalid genre
+        response = client.get(self.INVALID_URL)
+        assert response.status_code == 404
+    
+    def test_post(self, client):
+        valid = _get_movie_json()
+
+        # test with wrong content type
+        response = client.post(self.RESOURCE_URL, data=json.dumps(valid))
+        assert response.status_code == 415
+
+        # test with invalid genre
+        response = client.post(self.INVALID_URL, json=valid)
+        assert response.status_code == 404
+
+        # test with valid json
+        response = client.post(self.RESOURCE_URL, json=valid)
+        assert response.status_code == 201
+        assert response.headers["Location"].endswith(self.RESOURCE_URL + valid["uuid"] + "/")
+        # test that added item exists
+        resp = client.get(response.headers["Location"])
+        assert resp.status_code == 200
+        
+        # test with invalid json (remove title)
+        valid.pop("title")
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 400
+
+    
+class TestSeriesByGenreCollection(object):
+
+    RESOURCE_URL = "/api/genres/test-genre-1/series/"
+    INVALID_URL = "/api/genres/non-genre-x/series/"
+
+    def test_get(self, client):
+        # test valid request
+        response = client.get(self.RESOURCE_URL)
+        assert response.status_code == 200
+        body = json.loads(response.data)
+        # _check_namespace(client, body)
+        _check_control_get_method("self", client, body)
+        _check_control_get_method("up", client, body)
+        # check that two genres are found
+        assert len(body["items"]) == 2
+        # check that items are valid
+        for item in body["items"]:
+            assert "title" in item
+            assert "actors" in item
+            assert "release_date" in item
+            assert "score" in item
+            assert "seasons" in item
+
+            _check_control_get_method("self", client, item)
+            _check_control_get_method("profile", client, item)
+
+        # test with invalid genre
+        response = client.get(self.INVALID_URL)
+        assert response.status_code == 404
+    
+    def test_post(self, client):
+        valid = _get_series_json()
+
+        # test with wrong content type
+        response = client.post(self.RESOURCE_URL, data=json.dumps(valid))
+        assert response.status_code == 415
+
+        # test with invalid genre
+        response = client.post(self.INVALID_URL, json=valid)
+        assert response.status_code == 404
+
+        # test with valid json
+        response = client.post(self.RESOURCE_URL, json=valid)
+        assert response.status_code == 201
+        assert response.headers["Location"].endswith(self.RESOURCE_URL + valid["uuid"] + "/")
+        # test that added item exists
+        resp = client.get(response.headers["Location"])
+        assert resp.status_code == 200
+        
+        # test with invalid json (remove title)
+        valid.pop("title")
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 400
