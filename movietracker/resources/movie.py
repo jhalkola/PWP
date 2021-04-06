@@ -3,6 +3,7 @@ import re
 from flask_restful import Resource
 from flask import Response, request, url_for
 from jsonschema import validate, ValidationError
+from movietracker import db
 from movietracker.models import Movie
 from movietracker.constants import *
 from movietracker.utils import get_uuid, MovieTrackerBuilder, create_error_response
