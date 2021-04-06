@@ -505,6 +505,27 @@ Get a list of movies belonging to one genre.
                 ]
             }
 
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to add movie to genre that does not exist.
+
+    + Body
+
+            {
+                "resource_url": "/api/genres/hemuli/movies/",
+                "@error":{
+                    "@message": "Genre not found",
+                    "@messages":[
+                        "Genre with name 'hemuli' does not exist"
+                    ]
+                },
+                "@controls":{
+                    "profile":{
+                        "href": "/profiles/error/"
+                    }
+                }
+            }
+
 
 ### Add movie [POST]
 
