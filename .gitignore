@@ -3,4 +3,6 @@ movietracker/.vscode
 movietracker/resources/__pycache__
 /src
 /instance
+tests/__pycache__
+tests/.pytest_cache
 .vscode/settings.json
