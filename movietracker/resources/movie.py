@@ -71,9 +71,12 @@ class MovieItem(Resource):
             movies = Movie.query.filter_by(uuid=movie).first()
         else:
             movies = Movie.query.filter_by(title=movie).all()
-            
-        if movies is None:
-            return create_error_response(404, "Not found", "Movie with name '{}' cannot be found.".format(movie))
+        
+        if movies is None or not movies:
+            return create_error_response(404,
+                "Not found",
+                "Movie with name '{}' cannot be found.".format(movie)
+                )
         
         if type(movies) is not list:
             movies = [movies]
@@ -101,7 +104,7 @@ class MovieItem(Resource):
         return Response(json.dumps(body), 200, mimetype=MASON)
         
     def put(self, movie):
-        if request.json == None:
+        if not request.json:
             return create_error_response(415, "Unsupported media type", "Request content type must be JSON")
         try:
             validate(request.json, Movie.get_schema())
@@ -109,6 +112,12 @@ class MovieItem(Resource):
             return create_error_response(400, "Invalid JSON document", str(e))
             
         movie = Movie.query.filter_by(uuid=movie).first()
+        if movie is None:
+            return create_error_response(404,
+                "Not found",
+                "Movie with name '{}' cannot be found.".format(movie)
+                )
+
         try:
             movie.title = request.json["title"]
         except KeyError:
