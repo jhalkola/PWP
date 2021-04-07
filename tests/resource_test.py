@@ -479,7 +479,7 @@ class TestSeriesCollection(object):
 
 class TestSeriesItem(object):
  
-    RESOURCE_URL = "/api/series/asdasdasddasdasdasddx1/"
+    RESOURCE_URL = "/api/series/638P5GEe3c8QmAtiUaYAE31/"
     INVALID_URL = "/api/series/test-series-xd/"
     MODIFIED_URL = "/api/series/test-series-99/"
  
