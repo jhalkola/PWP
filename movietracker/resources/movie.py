@@ -26,10 +26,11 @@ class MovieCollection(Resource):
             movie_body.add_control("profile", MOVIE_PROFILE)
             movie_list.append(movie_body)
         
-        body = MovieTrackerBuilder(items=movie_list)
+        body = MovieTrackerBuilder()
         body.add_namespace("mt", LINK_RELATIONS_URL)
         body.add_control("self", url_for("api.moviecollection"))
         body.add_control_all_genres()
+        body["items"] = movie_list
         
         return Response(json.dumps(body), 200, mimetype=MASON)
 
@@ -71,7 +72,7 @@ class MovieItem(Resource):
             movies = Movie.query.filter_by(title=movie).all()
             
         if movies is None:
-            return create_error_response(404, "Not found", "Movie with name '{}' cannot be found.".format(title))
+            return create_error_response(404, "Not found", "Movie with name '{}' cannot be found.".format(movie))
         
         if type(movies) is not list:
             movies = [movies]
