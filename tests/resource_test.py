@@ -376,8 +376,8 @@ class TestMovieCollection(object):
             assert "genre" in item
             _check_control_get_method("self", client, item)
             _check_control_get_method("profile", client, item)
- 
- 
+
+
 class TestMovieItem(object):
  
     RESOURCE_URL = "/api/movies/DWDES5GE5PtBQJGMSa7t31/"
@@ -450,5 +450,81 @@ class TestMovieItem(object):
         assert resp.status_code == 404
 
         # try to delete movie that is not in database
+        resp = client.delete(self.INVALID_URL)
+        assert resp.status_code == 404
+
+class TestSeriesCollection(object):
+    RESOURCE_URL = "/api/series/"
+    
+    def test_get(self, client):
+        #Test status code, namespace and controls
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        assert len(body["items"]) == 2
+        _check_namespace(client, body)
+        _check_control_get_method("self", client, body)
+        _check_control_get_method("mt:all-genres", client, body)
+        #Test that all attributes are found in items
+        for item in body["items"]:
+            assert "title" in item
+            assert "actors" in item
+            assert "release_date" in item
+            assert "score" in item
+            assert "seasons" in item
+            assert "genre" in item
+            print(item["@controls"]["self"])
+            _check_control_get_method("self", client, item)
+            _check_control_get_method("profile", client, item)
+
+class TestSeriesItem(object):
+ 
+    RESOURCE_URL = "/api/series/asdasdasddasdasdasddx1/"
+    INVALID_URL = "/api/series/test-series-xd/"
+    MODIFIED_URL = "/api/series/test-series-99/"
+ 
+    def test_get(self, client):
+        #Test status code and attribute values
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        assert body["title"] == "test-series-1"
+        assert body["actors"] == "test-actor-1"
+        assert body["release_date"] == "test-date-1"
+        assert body["score"] == 1
+        assert body["seasons"] == 1
+        assert body["genre"] == "action"
+        #Test namespace and controls
+        _check_namespace(client, body)
+        _check_control_get_method("self", client, body)
+        _check_control_get_method("collection", client, body)        
+        _check_control_get_method("mt:series-by-genre", client, body)
+        _check_control_put_method("edit", client, body, "series")
+        _check_control_delete_method("mt:delete", client, body)
+        resp = client.get(self.INVALID_URL)
+        assert resp.status_code == 404
+        
+    def test_put(self, client):
+        #Test invalid media type
+        valid = _get_series_json()
+        resp = client.put(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+        #Test invalid url
+        resp = client.put(self.INVALID_URL, json=valid)
+        assert resp.status_code == 404
+        #Test resource editing, and confirm changes
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 204
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        assert json.loads(resp.data)["title"] == valid["title"]
+        
+    def test_delete(self, client):
+        #Test and verify deletion
+        resp = client.delete(self.RESOURCE_URL)
+        assert resp.status_code == 204
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 404
+        #Test Invalid deletion
         resp = client.delete(self.INVALID_URL)
         assert resp.status_code == 404
