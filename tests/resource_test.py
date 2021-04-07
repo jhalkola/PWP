@@ -79,13 +79,14 @@ def _get_movie_json(number=1):
         "release_date": "0{}-01-2000".format(number),
         "score": number,
         "genre": Genre.query.filter_by(name="crime").first()
-
+    }
     return movie_json
 
 def _get_series_json(number=1):
     '''
     Creates a valid series JSON object for PUT and POST tests
     '''
+    
     uuid = get_uuid()
     series_json = {
         "title": "extra-series-{}".format(number),
@@ -93,9 +94,9 @@ def _get_series_json(number=1):
         "actors": "extra-actors-{}".format(number),
         "release_date": "0{}-01-2000".format(number),
         "score": number,
-        "seasons": number
+        "seasons": number,
         "genre": Genre.query.filter_by(name="crime").first()
-        
+    }
     return series_json
 
 # From "sensorhub" example
@@ -396,7 +397,7 @@ class TestMovieItem(object):
             assert item["title"] == "test-movie-1"
             assert item["uuid"] == "asdasdasddasdasdasddd1"
             assert item["actors"] == "test-actor-1"
-            assert item["release_date"] == "01-01-2000"
+            assert item["release_date"] == "test-date-1"
             assert item["score"] == 1
             assert item["genre"] == "action"
         
