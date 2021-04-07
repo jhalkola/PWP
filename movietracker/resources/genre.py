@@ -155,7 +155,8 @@ class SeriesByGenreCollection(Resource):
                 title=db_series.title,
                 actors=db_series.actors,
                 release_date=db_series.release_date,
-                score=db_series.score
+                score=db_series.score,
+                seasons=db_series.seasons
             )
             item.add_control("self", url_for("api.seriesitem", series=db_series.uuid))
             item.add_control("profile", SERIES_PROFILE)

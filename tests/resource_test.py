@@ -214,7 +214,7 @@ class TestGenreColletion(object):
 
 class TestGenreItem(object):
 
-    RESOURCE_URL = "/api/genres/test-genre-1/"
+    RESOURCE_URL = "/api/genres/action/"
     INVALID_URL = "/api/genres/non-genre-x/"
 
     def test_get(self, client):
@@ -235,7 +235,7 @@ class TestGenreItem(object):
 
 class TestMoviesByGenreCollection(object):
 
-    RESOURCE_URL = "/api/genres/test-genre-1/movies/"
+    RESOURCE_URL = "/api/genres/action/movies/"
     INVALID_URL = "/api/genres/non-genre-x/movies/"
     LOCATION_URL = "/api/movies/"
 
@@ -296,7 +296,7 @@ class TestMoviesByGenreCollection(object):
     
 class TestSeriesByGenreCollection(object):
 
-    RESOURCE_URL = "/api/genres/test-genre-1/series/"
+    RESOURCE_URL = "/api/genres/action/series/"
     INVALID_URL = "/api/genres/non-genre-x/series/"
     LOCATION_URL = "/api/series/"
 
