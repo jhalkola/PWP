@@ -38,7 +38,7 @@ def client():
 
 def _populate_db():
     # add two genres to test db
-    genres = ["test-genre-1", "test-genre-2"]
+    genres = ["action", "crime"]
     for g in genres:
         db.session.add(Genre(name=g))
     db.session.commit()
@@ -47,7 +47,7 @@ def _populate_db():
     for i in range(1, 3):
         movie = Movie(
             title="test-movie-{}".format(i),
-            uuid=get_uuid(),
+            uuid="asdasdasddasdasdasddd" + str(i),
             actors="test-actor-{}".format(i),
             release_date="test-date-{}".format(i),
             score=i,
@@ -55,7 +55,7 @@ def _populate_db():
         )
         series = Series(
             title="test-series-{}".format(i),
-            uuid=get_uuid(),
+            uuid="asdasdasddasdasdasddx" + str(i),
             actors="test-actor-{}".format(i),
             release_date="test-date-{}".format(i),
             score=i,
@@ -73,10 +73,11 @@ def _get_movie_json(number=1):
 
     movie_json = {
         "title": "extra-movie-{}".format(number),
-        "uuid": get_uuid(),
+        "uuid": "asdasdasddasdasdasdddd",
         "actors": "extra-actors-{}".format(number),
         "release_date": "extra-date-{}".format(number),
-        "score": number
+        "score": number,
+        "genre": Genre.query.filter_by(name="crime").first()
     }
     return movie_json
 
@@ -87,10 +88,11 @@ def _get_series_json(number=1):
 
     series_json = {
         "title": "extra-series-{}".format(number),
-        "uuid": get_uuid(),
+        "uuid": "asasasasasasasasasasas",
         "actors": "extra-actors-{}".format(number),
         "release_date": "extra-date-{}".format(number),
-        "score": number
+        "score": number,
+        "genre": Genre.query.filter_by(name="crime").first()
     }
     return series_json
 
@@ -335,3 +337,90 @@ class TestSeriesByGenreCollection(object):
         valid.pop("title")
         resp = client.post(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 400
+        
+        
+class TestMovieCollection(object):
+
+    RESOURCE_URL = "/api/movies/"
+    
+    def test_get(self, client):
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        assert len(body["items"]) == 2
+        _check_namespace(client, body)
+        _check_control_get_method("self", client, body)
+        _check_control_get_method("mt:all-genres", client, body)
+        
+        for item in body["items"]:
+            assert "title" in item
+            assert "uuid" in item
+            assert "actors" in item
+            assert "release_date" in item
+            assert "score" in item
+            assert "genre" in item
+            _check_control_get_method("self", client, item)
+            _check_control_get_method("profile", client, item)
+ 
+ 
+class TestMovieItem(object):
+ 
+    RESOURCE_URL = "/api/movies/asdasdasddasdasdasddd1/"
+    INVALID_URL = "/api/movies/test-movie-xd/"
+    MODIFIED_URL = "/api/movies/test-movie-99/"
+ 
+    def test_get(self, client):
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        assert len(body["items"]) >= 1
+        
+        for item in body["items"]:
+        
+            assert item["title"] == "test-movie-1"
+            assert item["uuid"] == "asdasdasddasdasdasddd1"
+            assert item["actors"] == "test-actor-1"
+            assert item["release_date"] == "test-date-1"
+            assert item["score"] == 1
+            assert item["genre"] == "action"
+        
+            _check_control_get_method("self", client, item)
+            _check_control_get_method("mt:movies-by-genre", client, item)
+            _check_control_put_method("edit", client, item, "movie")
+            _check_control_delete_method("mt:delete", client, item)
+            
+        _check_namespace(client, body)
+        _check_control_get_method("profile", client, body)
+        _check_control_get_method("collection", client, body)        
+        resp = client.get(self.INVALID_URL)
+        assert resp.status_code == 404
+        
+    def test_put(self, client):
+    
+        valid = _get_movie_json()
+        
+        resp = client.put(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+        
+        resp = client.put(self.INVALID_URL, json=valid)
+        assert resp.status_code == 404
+        
+        # remove field for 400
+        valid.pop("title")
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 400
+        
+        valid = _get_movie_json()
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        resp = client.get(self.MODIFIED_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        assert body["title"] == valid["title"]
+        
+    def test_delete(self, client):
+        resp = client.delete(self.RESOURCE_URL)
+        assert resp.status_code == 204
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 404
+        resp = client.delete(self.INVALID_URL)
+        assert resp.status_code == 404

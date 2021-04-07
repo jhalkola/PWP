@@ -20,7 +20,8 @@ class MovieCollection(Resource):
                 uuid=movie.uuid,
                 actors=movie.actors,
                 release_date=movie.release_date,
-                score=movie.score
+                score=movie.score,
+                genre=movie.genre.name
             )
             movie_body.add_control("self", url_for("api.movieitem", movie=movie.uuid))
             movie_body.add_control("profile", MOVIE_PROFILE)
@@ -71,7 +72,7 @@ class MovieItem(Resource):
             movies = Movie.query.filter_by(title=movie).all()
             
         if movies is None:
-            return create_error_response(404, "Not found", "Movie with name '{}' cannot be found.".format(title))
+            return create_error_response(404, "Not found", "Movie with name '{}' cannot be found.".format(movie))
         
         if type(movies) is not list:
             movies = [movies]
@@ -83,21 +84,22 @@ class MovieItem(Resource):
                 uuid=movie.uuid,
                 actors=movie.actors,
                 release_date=movie.release_date,
-                score=movie.score
+                score=movie.score,
+                genre=movie.genre.name
             )
-            movie_body.add_namespace("mt", LINK_RELATIONS_URL)
             movie_body.add_control("self", url_for("api.movieitem", movie=movie.uuid))
-            movie_body.add_control("profile", MOVIE_PROFILE)
-            movie_body.add_control("collection", url_for("api.moviecollection"))
             movie_body.add_control_movies_by_genre(movie.genre.name)
             movie_body.add_control_edit(url_for("api.movieitem", movie=movie.uuid), Movie.get_schema())
             movie_body.add_control_delete(url_for("api.movieitem", movie=movie.uuid))
             movie_list.append(movie_body)
             
-        body = MovieTrackerBuilder(items=movie_list)   
+        body = MovieTrackerBuilder(items=movie_list)
+        body.add_namespace("mt", LINK_RELATIONS_URL)
+        body.add_control("profile", MOVIE_PROFILE)     
+        body.add_control("collection", url_for("api.moviecollection"))        
         return Response(json.dumps(body), 200, mimetype=MASON)
         
-    def put(self, uuid):
+    def put(self, movie):
         if request.json == None:
             return create_error_response(415, "Unsupported media type", "Request content type must be JSON")
         try:
@@ -105,7 +107,7 @@ class MovieItem(Resource):
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
             
-        movie = Movie.query.filter_by(uuid=uuid).first()
+        movie = Movie.query.filter_by(uuid=movie).first()
         try:
             movie.title = request.json["title"]
         except KeyError:
@@ -128,13 +130,14 @@ class MovieItem(Resource):
 
         db.session.add(movie)
         db.session.commit()
-        return Response("Movie successully edited", 204, headers={"Location": url_for("api.movieitem", movie=uuid)})
+        return Response("Movie successully edited", 204, headers={"Location": url_for("api.movieitem", movie=movie)})
         
-    def delete(self, uuid):
-        movie = Movie.query.filter_by(uuid=uuid).first()
+    def delete(self, movie):
+        movie = Movie.query.filter_by(uuid=movie).first()
         if movie is None:
-            return create_error_response(404, "Not found", "Movie with name '{}' cannot be found.".format(uuid))
+            return create_error_response(404, "Not found", "Movie with name '{}' cannot be found.".format(movie))
         
         db.session.delete(movie)
         db.session.commit()
         return Response("Movie was deleted successully", 204)
+        
