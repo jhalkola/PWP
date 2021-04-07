@@ -12,12 +12,6 @@ api.add_resource(GenreItem, "/genres/<genre>/")
 api.add_resource(MoviesByGenreCollection, "/genres/<genre>/movies/")
 api.add_resource(SeriesByGenreCollection, "/genres/<genre>/series/")
 api.add_resource(MovieCollection, "/movies/")
-api.add_resource(MovieItem,
-    "/movies/<movie>/",
-    "/genres/<genre>/movies/<movie>/"
-)
+api.add_resource(MovieItem, "/movies/<movie>/")
 api.add_resource(SeriesCollection, "/series/")
-api.add_resource(SeriesItem,
-    "/series/<series>/",
-    "/genres/<genre>/series/<series>/"
-)
+api.add_resource(SeriesItem, "/series/<series>/")
