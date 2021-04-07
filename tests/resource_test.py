@@ -5,10 +5,9 @@ import json
 from jsonschema import validate
 from sqlalchemy.engine import Engine
 from sqlalchemy import event
-from werkzeug.datastructures import Headers
 from movietracker.utils import get_uuid
 from movietracker import db, create_app
-from movietracker.models import Genre, Movie, Series
+from movietracker.models import *
 
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
@@ -31,7 +30,7 @@ def client():
     with app.app_context():
         db.create_all()
         _populate_db()
-        
+
     yield app.test_client()
 
     os.close(db_fd)
@@ -87,7 +86,6 @@ def _get_series_json(number=1):
     Creates a valid series JSON object for PUT and POST tests
     '''
     
-    uuid = get_uuid()
     series_json = {
         "title": "extra-series-{}".format(number),
         "uuid": "asasasasasasasasasasas",
@@ -280,13 +278,15 @@ class TestMoviesByGenreCollection(object):
         response = client.post(self.RESOURCE_URL, json=valid)
         assert response.status_code == 201
 
-        # For some reason response location header is RESOURCE_URL + uuid
-        # while it is actually set to be LOCATION_URL + uuid, thus this always fails
-        #assert response.headers["Location"].endswith(self.LOCATION_URL + valid["uuid"] + "/")
-
         # test that added item exists
-        resp = client.get(self.LOCATION_URL + valid["uuid"] + "/")
+        resp = client.get(response.headers["Location"])
         assert resp.status_code == 200
+
+        # test that location header is correct.
+        # db query does not work here so uuid is taken from request
+        data = json.loads(resp.data)["items"][0]
+        uuid = data["uuid"]
+        assert response.headers["Location"].endswith(self.LOCATION_URL + uuid + "/")
         
         # test with invalid json (remove title)
         valid.pop("title")
@@ -341,14 +341,16 @@ class TestSeriesByGenreCollection(object):
         # test with valid json
         response = client.post(self.RESOURCE_URL, json=valid)
         assert response.status_code == 201
-        
-        # For some reason response location header is RESOURCE_URL + uuid
-        # while it is actually set to be LOCATION_URL + uuid, thus this always fails
-        #assert response.headers["Location"].endswith(self.LOCATION_URL + valid["uuid"] + "/")
 
         # test that added item exists
-        resp = client.get(self.LOCATION_URL + valid["uuid"] + "/")
+        resp = client.get(response.headers["Location"])
         assert resp.status_code == 200
+        
+        # test that location header is correct.
+        # db query does not work here so uuid is taken from request
+        data = json.loads(resp.data)["items"][0]
+        uuid = data["uuid"]
+        assert response.headers["Location"].endswith(self.LOCATION_URL + uuid + "/") 
         
         # test with invalid json (remove title)
         valid.pop("title")
