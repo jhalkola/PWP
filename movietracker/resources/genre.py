@@ -77,7 +77,7 @@ class MoviesByGenreCollection(Resource):
                 release_date=db_movie.release_date,
                 score=db_movie.score
             )
-            item.add_control("self", url_for("api.movieitem", genre=db_genre.name, movie=db_movie.uuid))
+            item.add_control("self", url_for("api.movieitem", movie=db_movie.uuid))
             item.add_control("profile", MOVIE_PROFILE)
             body["items"].append(item)
 
@@ -128,7 +128,7 @@ class MoviesByGenreCollection(Resource):
                 movie.uuid = get_uuid()
         
         return Response(status=201, headers={
-            "Location": url_for("api.movieitem", genre=db_genre.name, movie=movie.uuid)
+                "Location": url_for("api.movieitem", movie=movie.uuid)
             })
 
 
@@ -157,7 +157,7 @@ class SeriesByGenreCollection(Resource):
                 release_date=db_series.release_date,
                 score=db_series.score
             )
-            item.add_control("self", url_for("api.seriesitem", genre=db_genre.name, series=db_series.uuid))
+            item.add_control("self", url_for("api.seriesitem", series=db_series.uuid))
             item.add_control("profile", SERIES_PROFILE)
             body["items"].append(item)
             
@@ -208,5 +208,5 @@ class SeriesByGenreCollection(Resource):
                 series.uuid = get_uuid()
         
         return Response(status=201, headers={
-            "Location": url_for("api.seriesitem", genre=db_genre.name, series=series.uuid)
+            "Location": url_for("api.seriesitem", series=series.uuid)
             })

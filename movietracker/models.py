@@ -32,7 +32,8 @@ class Movie(db.Model):
     def get_schema():
         schema = {
             "type": "object",
-            "required": ["title"]
+            "required": ["title"],
+            "additionalProperties": False
         }
         props = schema["properties"] = {}
         props["title"] = {
@@ -40,7 +41,7 @@ class Movie(db.Model):
             "type": "string"
         }
         props["actors"] =  {
-            "description": "List of actors",
+            "description": "Actors on the movie",
             "type": "string"
         }
         props["release_date"] =  {
@@ -71,7 +72,8 @@ class Series(db.Model):
     def get_schema():
         schema = {
             "type": "object",
-            "required": ["title", "seasons"]
+            "required": ["title", "seasons"],
+            "additionalProperties": False
         }
         props = schema["properties"] = {}
         props["title"] = {
@@ -79,7 +81,7 @@ class Series(db.Model):
             "type": "string"
         }
         props["actors"] =  {
-            "description": "List of actors",
+            "description": "Actors on the series",
             "type": "string"
         }
         props["release_date"] =  {

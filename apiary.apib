@@ -372,36 +372,6 @@ Get list of all movies
                     "mt:all-genres": {
                         "href": "/api/genres/",
                         "title": "collection of all genres"
-                    },
-                    "mt:add-movie": {
-                        "href": "/api/movies/",
-                        "title": "collection of all series",
-                        "encoding": "json",
-                        "method": "POST",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "title": {
-                                    "description": "Movie name",
-                                    "type": "string"
-                                },
-                                "actors": {
-                                    "description": "List of actors",
-                                    "type": "string",
-                                    "pattern": ""
-                                },
-                                "release_date": {
-                                    "description": "Release date of the movie",
-                                    "type": "string",
-                                    "pattern": "^[0-3][0-9]-[01][0-9]-[0-9]{4}$"
-                                },
-                                "score": {
-                                    "description": "IMDd score of the movie",
-                                    "type": "number"
-                                }
-                            },
-                            "required": ["title", "release_date"]
-                        }
                     }
                 },
                 "items": [ 
@@ -463,7 +433,12 @@ Get a list of movies belonging to one genre.
     + Body
 
             {
-                "name": "Action",
+                "name": "Action
+                "@namespaces": {
+                    "mt": {
+                       "name": "/movie-tracker/link-relations#" 
+                    }
+                },
                 "@controls": {
                     "self": {
                         "href": "/api/genres/action/movies/"
@@ -471,6 +446,36 @@ Get a list of movies belonging to one genre.
                     "up": {
                         "href": "/api/genres/action/",
                         "title": "A collection of action movies"
+                    },
+                    "mt:add-movie": {
+                        "href": "/api/genres/action/movie/,
+                        "method": "POST",
+                        "encoding": "json",
+                        "title": "Add new movie to the API",
+                        "schema":
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "title": {
+                                    "description": "Movie name",
+                                    "type": "string"
+                                },
+                                "actors": {
+                                    "description": "Actors on the movie",
+                                    "type": "string"
+                                },
+                                "release_date": {
+                                    "description": "Release date of the movie",
+                                    "type": "string",
+                                    "pattern": "^[0-9]{4}-[01][0-9]-[0-3][0-9]$"
+                                },
+                                "score": {
+                                    "description": "IMDb score of movie",
+                                    "type": "number"
+                                }
+                            },
+                            "required": ["title", "release_date"]
+                        }
                     }
                 },
                 "items": [ 
@@ -680,17 +685,16 @@ Get representation of a movie
                                     "type": "string"
                                 },
                                 "actors": {
-                                    "description": "List of actors",
-                                    "type": "string",
-                                    "pattern": ""
+                                    "description": "Actors on the movie",
+                                    "type": "string"
                                 },
                                 "release_date": {
                                     "description": "Release date of the movie",
                                     "type": "string",
-                                    "pattern": "^[0-3][0-9]-[01][0-9]-[0-9]{4}$"
+                                    "pattern": "^[0-9]{4}-[01][0-9]-[0-3][0-9]$"
                                 },
                                 "score": {
-                                    "description": "IMDd score of the movie",
+                                    "description": "IMDb score of movie",
                                     "type": "number"
                                 }
                             },
@@ -942,6 +946,11 @@ Get a list of series belonging to one genre.
 
             {
                 "name": "Action",
+                "@namespaces": {
+                    "mt": {
+                       "name": "/movie-tracker/link-relations#" 
+                    }
+                },
                 "@controls": {
                     "self": {
                         "href": "/api/genres/action/series/"
@@ -949,6 +958,40 @@ Get a list of series belonging to one genre.
                     "up": {
                         "href": "/api/genres/action/",
                         "title": "A collection of action series"
+                    },
+                    "mt:add-series": {
+                        "href": "/api/genres/action/series/,
+                        "method": "POST",
+                        "encoding": "json",
+                        "title": "Add new series to the API",
+                        "schema":
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "title": {
+                                    "description": "Series name",
+                                    "type": "string"
+                                },
+                                "actors": {
+                                    "description": "actors on the series",
+                                    "type": "string"
+                                },
+                                "release_date": {
+                                    "description": "Release date of the series",
+                                    "type": "string",
+                                    "pattern": "^[0-9]{4}-[01][0-9]-[0-3][0-9]$"
+                                },
+                                "score": {
+                                    "description": "IMDb score of the series",
+                                    "type": "number"
+                                },
+                                "seasons": {
+                                    "description": "Number of seasons",
+                                    "type": "number"
+                                }
+                            },
+                            "required": ["title", "release_date", "seasons"]
+                        }
                     }
                 },
                 "items": [ 
@@ -1154,16 +1197,16 @@ Get representation of a series
                                     "type": "string"
                                 },
                                 "actors": {
-                                    "description": "actors of the series",
+                                    "description": "actors on the series",
                                     "type": "string"
                                 },
                                 "release_date": {
-                                    "description": "Formed",
+                                    "description": "Release date of the series",
                                     "type": "string",
                                     "pattern": "^[0-9]{4}-[01][0-9]-[0-3][0-9]$"
                                 },
                                 "score": {
-                                    "description": "Score of series",
+                                    "description": "IMDb score of the series",
                                     "type": "number"
                                 },
                                 "seasons": {
@@ -1171,7 +1214,7 @@ Get representation of a series
                                     "type": "number"
                                 }
                             },
-                            "required": ["title", "release_date"]
+                            "required": ["title", "release_date", "seasons"]
                         }
                     },
                     "mt:delete": {
