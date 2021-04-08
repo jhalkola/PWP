@@ -3,12 +3,6 @@ from flask.cli import with_appcontext
 from movietracker import db
 from movietracker.utils import get_uuid
 
-# app = Flask(__name__)
-# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///movie-tracker.db"
-# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-# db = SQLAlchemy(app)
-
-
 class Genre(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False, unique=True)

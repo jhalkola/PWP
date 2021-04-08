@@ -184,6 +184,19 @@ def _check_control_post_method(ctrl, client, obj, item_type):
     assert resp.status_code == 201
 
 
+class TestEntryPoint(object):
+    RESOURCE_URL = "/api/"
+
+    def test_get(self, client):
+        response = client.get(self.RESOURCE_URL)
+        assert response.status_code == 200
+        body = json.loads(response.data)
+        _check_namespace(client, body)
+        _check_control_get_method("mt:all-series", client, body)
+        _check_control_get_method("mt:all-movies", client, body)
+        _check_control_get_method("mt:all-genres", client, body)
+
+
 class TestGenreColletion(object):
     
     RESOURCE_URL = "/api/genres/"
@@ -195,7 +208,7 @@ class TestGenreColletion(object):
         _check_namespace(client, body)
         _check_control_get_method("self", client, body)
         _check_control_get_method("mt:all-movies", client, body)
-        #_check_control_get_method("mt:all-series", client, body)
+        _check_control_get_method("mt:all-series", client, body)
         # check that two genres are found
         assert len(body["items"]) == 2
         # check that items are valid

@@ -1,6 +1,8 @@
 import os
-from flask import Flask
+import json
+from flask import Flask, Response
 from flask_sqlalchemy import SQLAlchemy
+from movietracker.utils import MovieTrackerBuilder
 from movietracker.constants import *
 
 db = SQLAlchemy()
@@ -32,6 +34,16 @@ def create_app(test_config=None):
     app.cli.add_command(models.init_db_command)
     app.cli.add_command(models.generate_test_data)
     app.register_blueprint(api.api_bp)
+
+    @app.route("/api/", methods=["GET"])
+    def entry_point():
+        body = MovieTrackerBuilder()
+        body.add_namespace("mt", LINK_RELATIONS_URL)
+        body.add_control_all_movies()
+        body.add_control_all_series()
+        body.add_control_all_genres()
+
+        return Response(json.dumps(body), 200, mimetype=MASON)
 
     @app.route(LINK_RELATIONS_URL)
     def send_link_relations():
