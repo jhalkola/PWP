@@ -25,10 +25,10 @@ Step for initializing database and adding test data, run these commands in root 
 
 If you want to reset the test db, delete "instance" folder and run above commands again.
 
-## Flask Testing Instructions
+## Flask Test Server
  
 To start development server, use `flask run`. Environmental variables FLASK_APP and FLASK_ENV must be set.
 
-## Pytest Instructions
+## Pytests
 
 To run the database and API pytests, run command `pytest --disable-pytest-warnings` in the "tests" folder.
