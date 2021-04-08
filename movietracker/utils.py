@@ -110,6 +110,26 @@ class MovieTrackerBuilder(MasonBuilder):
             method="GET",
             title="Collection of all series in the genre"
         )
+
+    def add_control_add_movie(self, genre, schema):
+        self.add_control(
+            "mt:add-movie",
+            url_for("api.moviesbygenrecollection", genre=genre),
+            method="POST",
+            encoding="json",
+            title="Add movie to the API",
+            schema=schema
+        )
+
+    def add_control_add_series(self, genre, schema):
+        self.add_control(
+            "mt:add-series",
+            url_for("api.seriesbygenrecollection", genre=genre),
+            method="POST",
+            encoding="json",
+            title="Add series to the API",
+            schema=schema
+        )
         
     def add_control_edit(self, href, schema):
         self.add_control(
@@ -136,4 +156,7 @@ def create_error_response(status_code, title, message=None):
 
 
 def get_uuid():
+    '''
+    Get short uuid to uniquely identify each resource
+    '''
     return shortuuid.uuid()

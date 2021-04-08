@@ -17,16 +17,16 @@ class Movie(db.Model):
     title = db.Column(db.String(64), nullable=False)
     uuid = db.Column(db.String(64), nullable=False, unique=True)
     actors = db.Column(db.String(64), nullable=True)
-    release_date = db.Column(db.String(64), nullable=True)
+    release_date = db.Column(db.String(64), nullable=False)
     score = db.Column(db.Float, nullable=True)
 
     genre = db.relationship("Genre", back_populates="movies")
 
     @staticmethod
-    def get_schema():
+    def get_schema_post():
         schema = {
             "type": "object",
-            "required": ["title"],
+            "required": ["title", "release_date"],
             "additionalProperties": False
         }
         props = schema["properties"] = {}
@@ -49,6 +49,36 @@ class Movie(db.Model):
         }
         return schema
 
+    @staticmethod
+    def get_schema_put():
+        schema = {
+            "type": "object",
+            "additionalProperties": False
+        }
+        props = schema["properties"] = {}
+        props["title"] = {
+            "description": "Movie name",
+            "type": "string"
+        }
+        props["actors"] =  {
+            "description": "Actors on the movie",
+            "type": "string"
+        }
+        props["release_date"] =  {
+            "description": "Release date of the movie",
+            "type": "string",
+            "pattern": "^[0-3][0-9]-[01][0-9]-[0-9]{4}$"
+        }
+        props["score"] = {
+            "description": "IMDb score of the movie",
+            "type": "number"
+        }
+        props["genre"] = {
+            "description": "Genre of the movie",
+            "type": "string"
+        }
+        return schema
+
 
 class Series(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -56,17 +86,17 @@ class Series(db.Model):
     title = db.Column(db.String(64), nullable=False)
     uuid = db.Column(db.String(64), nullable=False, unique=True)
     actors = db.Column(db.String(64), nullable=True)
-    release_date = db.Column(db.String(64), nullable=True)
+    release_date = db.Column(db.String(64), nullable=False)
     score = db.Column(db.Float, nullable=True)
     seasons = db.Column(db.Integer, default=1, nullable=False)
 
     genre = db.relationship("Genre", back_populates="series")
 
     @staticmethod
-    def get_schema():
+    def get_schema_post():
         schema = {
             "type": "object",
-            "required": ["title", "seasons"],
+            "required": ["title", "release_date", "seasons"],
             "additionalProperties": False
         }
         props = schema["properties"] = {}
@@ -90,6 +120,40 @@ class Series(db.Model):
         props["seasons"] = {
             "description": "Number of seasons",
             "type": "number"
+        }
+        return schema
+
+    @staticmethod
+    def get_schema_put():
+        schema = {
+            "type": "object",
+            "additionalProperties": False
+        }
+        props = schema["properties"] = {}
+        props["title"] = {
+            "description": "Series name",
+            "type": "string"
+        }
+        props["actors"] =  {
+            "description": "Actors on the series",
+            "type": "string"
+        }
+        props["release_date"] =  {
+            "description": "Release date of the series",
+            "type": "string",
+            "pattern": "^[0-3][0-9]-[01][0-9]-[0-9]{4}$"
+        }
+        props["score"] = {
+            "description": "IMDb score of the series",
+            "type": "number"
+        }
+        props["seasons"] = {
+            "description": "Number of seasons",
+            "type": "number"
+        }
+        props["genre"] = {
+            "description": "Genre of the series",
+            "type": "string"
         }
         return schema
 

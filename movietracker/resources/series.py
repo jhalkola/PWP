@@ -2,11 +2,10 @@ import json
 from flask import Response, request, url_for
 from flask_restful import Resource
 from jsonschema import validate, ValidationError
-from sqlalchemy.exc import IntegrityError
 from movietracker import db
-from movietracker.models import Genre, Movie, Series
+from movietracker.models import *
 from movietracker.constants import *
-from movietracker.utils import MovieTrackerBuilder, create_error_response, get_uuid
+from movietracker.utils import MovieTrackerBuilder, create_error_response
 
 class SeriesCollection(Resource):
     
@@ -55,7 +54,7 @@ class SeriesItem(Resource):
         body.add_control("self", url_for("api.seriesitem", series=db_series.uuid))
         body.add_control("collection", url_for("api.seriesbygenrecollection", genre=db_series.genre.name))
         body.add_control_series_by_genre(db_series.genre.name)
-        body.add_control_edit(url_for("api.seriesitem", series=db_series.uuid), Series.get_schema())
+        body.add_control_edit(url_for("api.seriesitem", series=db_series.uuid), Series.get_schema_put())
         body.add_control_delete(url_for("api.seriesitem", series=db_series.uuid))
 
         return Response(json.dumps(body), 200, mimetype=MASON)
@@ -76,15 +75,23 @@ class SeriesItem(Resource):
             )
 
         try:
-            validate(request.json, Series.get_schema())
+            validate(request.json, Series.get_schema_put())
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
 
+        if "genre" in request.json:
+            genre = request.json["genre"]
+            db_genre = Genre.query.filter_by(name=genre).first()
+            if db_genre is None:
+                return create_error_response(404,
+                    "Not found",
+                    "Genre with name '{}' cannot be found.".format(genre)
+                    )
+            else:
+                request.json["genre"] = db_genre
+
         for attr in request.json:
-            try:
-                setattr(db_series, attr, request.json[attr])
-            except KeyError:
-                pass
+            setattr(db_series, attr, request.json[attr])
         
         db.session.add(db_series)
         db.session.commit()

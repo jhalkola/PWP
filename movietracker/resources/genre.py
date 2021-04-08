@@ -68,6 +68,7 @@ class MoviesByGenreCollection(Resource):
         )
         body.add_control("self", url_for("api.moviesbygenrecollection", genre=db_genre.name))
         body.add_control("up", url_for("api.genreitem", genre=db_genre.name))
+        body.add_control_add_movie(db_genre.name, Movie.get_schema_post())
         body["items"] = []
         
         for db_movie in db_genre.movies:
@@ -85,7 +86,6 @@ class MoviesByGenreCollection(Resource):
 
     def post(self, genre):
         db_genre = Genre.query.filter_by(name=genre).first()
-
         if db_genre is None:
             return create_error_response(404,
                 "Genre not found",
@@ -99,7 +99,7 @@ class MoviesByGenreCollection(Resource):
             )
 
         try:
-            validate(request.json, Movie.get_schema())
+            validate(request.json, Movie.get_schema_post())
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
 
@@ -111,21 +111,10 @@ class MoviesByGenreCollection(Resource):
 
         # set everything else for the new movie entry
         for i in request.json:
-            try:
-                setattr(movie, i, request.json[i])
-            except KeyError:
-                # if nullable value not given, pass
-                pass
+            setattr(movie, i, request.json[i])
 
-        while True:
-            try:
-                db.session.add(movie)
-                db.session.commit()
-                break
-            except IntegrityError:
-                # Rare case when uuid is already in use and unique nature
-                # raises error. Genereate new uuid. 
-                movie.uuid = get_uuid()
+        db.session.add(movie)
+        db.session.commit()
         
         return Response(status=201, headers={
                 "Location": url_for("api.movieitem", movie=movie.uuid)
@@ -148,6 +137,7 @@ class SeriesByGenreCollection(Resource):
         )
         body.add_control("self", url_for("api.seriesbygenrecollection", genre=db_genre.name))
         body.add_control("up", url_for("api.genreitem", genre=db_genre.name))
+        body.add_control_add_series(db_genre.name, Series.get_schema_post())
         body["items"] = []
         
         for db_series in db_genre.series:
@@ -169,7 +159,7 @@ class SeriesByGenreCollection(Resource):
 
         if db_genre is None:
             return create_error_response(404,
-                "Genre not found",
+                "Not found",
                 "Genre with name '{}' does not exist".format(genre)
             )
 
@@ -180,7 +170,7 @@ class SeriesByGenreCollection(Resource):
             )
 
         try:
-            validate(request.json, Series.get_schema())
+            validate(request.json, Series.get_schema_post())
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
 
@@ -192,22 +182,11 @@ class SeriesByGenreCollection(Resource):
 
         # set everything else for the new movie entry
         for i in request.json:
-            try:
-                setattr(series, i, request.json[i])
-            except KeyError:
-                # if nullable value not given, pass
-                pass
+            setattr(series, i, request.json[i])
 
-        while True:
-            try:
-                db.session.add(series)
-                db.session.commit()
-                break
-            except IntegrityError:
-                # Rare case when uuid is already in use and unique nature
-                # raises error. Genereate new uuid. 
-                series.uuid = get_uuid()
-        
+        db.session.add(series)
+        db.session.commit()
+    
         return Response(status=201, headers={
             "Location": url_for("api.seriesitem", series=series.uuid)
             })

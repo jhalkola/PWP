@@ -66,31 +66,50 @@ def _populate_db():
         db.session.add(series)
     db.session.commit()
 
-def _get_movie_json(number=1):
+def _get_movie_json(method, number=1):
     '''
     Creates a valid movie JSON object for PUT and POST tests
     '''
 
-    movie_json = {
-        "title": "extra-movie-{}".format(number),
-        "actors": "extra-actors-{}".format(number),
-        "release_date": "0{}-01-2000".format(number),
-        "score": number
-    }
+    if method == "post":
+        movie_json = {
+            "title": "extra-movie-{}".format(number),
+            "actors": "extra-actors-{}".format(number),
+            "release_date": "0{}-01-2000".format(number),
+            "score": number
+        }
+    else:
+        movie_json = {
+            "title": "extra-movie-{}".format(number),
+            "actors": "extra-actors-{}".format(number),
+            "release_date": "0{}-01-2000".format(number),
+            "score": number,
+            "genre": "action"
+
+        }
     return movie_json
 
-def _get_series_json(number=1):
+def _get_series_json(method, number=1):
     '''
     Creates a valid series JSON object for PUT and POST tests
     '''
-    
-    series_json = {
-        "title": "extra-series-{}".format(number),
-        "actors": "extra-actors-{}".format(number),
-        "release_date": "0{}-01-2000".format(number),
-        "score": number,
-        "seasons": number
-    }
+    if method == "post":
+        series_json = {
+            "title": "extra-series-{}".format(number),
+            "actors": "extra-actors-{}".format(number),
+            "release_date": "0{}-01-2000".format(number),
+            "score": number,
+            "seasons": number
+        }
+    else:
+        series_json = {
+            "title": "extra-series-{}".format(number),
+            "actors": "extra-actors-{}".format(number),
+            "release_date": "0{}-01-2000".format(number),
+            "score": number,
+            "seasons": number,
+            "genre": "action"
+        }
     return series_json
 
 # From "sensorhub" example
@@ -148,10 +167,10 @@ def _check_control_put_method(ctrl, client, obj, item_type):
     assert method == "put"
     assert encoding == "json"
     if item_type == "movie":
-        body = _get_movie_json()
+        body = _get_movie_json("put")
         body["title"] = obj["title"]
     else:
-        body = _get_series_json()
+        body = _get_series_json("put")
         body["title"] = obj["title"]
     validate(body, schema)
     resp = client.put(href, json=body)
@@ -176,15 +195,16 @@ def _check_control_post_method(ctrl, client, obj, item_type):
     assert method == "post"
     assert encoding == "json"
     if item_type == "movie":
-        body = _get_movie_json()
+        body = _get_movie_json("post")
     else:
-        body = _get_series_json()
+        body = _get_series_json("post")
     validate(body, schema)
     resp = client.post(href, json=body)
     assert resp.status_code == 201
 
 
 class TestEntryPoint(object):
+
     RESOURCE_URL = "/api/"
 
     def test_get(self, client):
@@ -255,6 +275,7 @@ class TestMoviesByGenreCollection(object):
         assert "name" in body
         _check_control_get_method("self", client, body)
         _check_control_get_method("up", client, body)
+        _check_control_post_method("mt:add-movie", client, body, "movie")
         # check that items are valid
         for item in body["items"]:
             assert "title" in item
@@ -270,7 +291,7 @@ class TestMoviesByGenreCollection(object):
         assert response.status_code == 404
     
     def test_post(self, client):
-        valid = _get_movie_json()
+        valid = _get_movie_json("post")
 
         # test with wrong content type
         response = client.post(self.RESOURCE_URL, data=json.dumps(valid))
@@ -305,6 +326,7 @@ class TestSeriesByGenreCollection(object):
         assert "name" in body
         _check_control_get_method("self", client, body)
         _check_control_get_method("up", client, body)
+        _check_control_post_method("mt:add-series", client, body, "series")
         # check that items are valid
         for item in body["items"]:
             assert "title" in item
@@ -321,7 +343,7 @@ class TestSeriesByGenreCollection(object):
         assert response.status_code == 404
     
     def test_post(self, client):
-        valid = _get_series_json()
+        valid = _get_series_json("post")
 
         # test with wrong content type
         response = client.post(self.RESOURCE_URL, data=json.dumps(valid))
@@ -336,7 +358,7 @@ class TestSeriesByGenreCollection(object):
         resp = client.get(response.headers["Location"])
         assert resp.status_code == 200
         # test with invalid json (remove title)
-        valid.pop("title")
+        valid["name"] = "test name"
         resp = client.post(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 400
         
@@ -374,33 +396,29 @@ class TestMovieItem(object):
         resp = client.get(self.RESOURCE_URL)
         assert resp.status_code == 200
         body = json.loads(resp.data)
-        assert len(body["items"]) >= 1
         
         #Test attributes and controls
-        for item in body["items"]:
-            assert item["title"] == "test-movie-1"
-            assert item["actors"] == "test-actor-1"
-            assert item["release_date"] == "test-date-1"
-            assert item["score"] == 1
-            assert item["genre"] == "action"
-
-            _check_control_get_method("self", client, item)
-            _check_control_get_method("mt:movies-by-genre", client, item)
-            _check_control_put_method("edit", client, item, "movie")
-            _check_control_delete_method("mt:delete", client, item)
-            
+        assert body["title"] == "test-movie-1"
+        assert body["actors"] == "test-actor-1"
+        assert body["release_date"] == "test-date-1"
+        assert body["score"] == 1
+        assert body["genre"] == "action"
+        #Test controls
         _check_namespace(client, body)
-        _check_control_get_method("profile", client, body)
+        _check_control_get_method("self", client, body)
         _check_control_get_method("collection", client, body)        
+        _check_control_get_method("mt:movies-by-genre", client, body)
+        _check_control_put_method("edit", client, body, "movie")
+        _check_control_delete_method("mt:delete", client, body)
+        #Test invalid url
         resp = client.get(self.INVALID_URL)
         body = json.loads(resp.data)
-        print(body)
         assert resp.status_code == 404
         
     def test_put(self, client):
 
         #Test invalid media type
-        valid = _get_movie_json()
+        valid = _get_movie_json("put")
         resp = client.put(self.RESOURCE_URL, data=json.dumps(valid))
         assert resp.status_code == 415
         #Test invalid url
@@ -411,11 +429,9 @@ class TestMovieItem(object):
         assert resp.status_code == 204
         resp = client.get(self.RESOURCE_URL)
         assert resp.status_code == 200
-        body = json.loads(resp.data)
-        movie = body["items"][0]
-        assert movie["title"] == valid["title"]
+        assert json.loads(resp.data)["title"] == valid["title"]
         # remove field for 400
-        valid.pop("title")
+        valid["name"] = "test name"
         resp = client.put(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 400  
         
@@ -485,7 +501,7 @@ class TestSeriesItem(object):
         
     def test_put(self, client):
         #Test invalid media type
-        valid = _get_series_json()
+        valid = _get_series_json("put")
         resp = client.put(self.RESOURCE_URL, data=json.dumps(valid))
         assert resp.status_code == 415
         #Test invalid url
@@ -498,7 +514,7 @@ class TestSeriesItem(object):
         assert resp.status_code == 200
         assert json.loads(resp.data)["title"] == valid["title"]
         # remove field for 400
-        valid.pop("title")
+        valid["name"] = "test name"
         resp = client.put(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 400
         
