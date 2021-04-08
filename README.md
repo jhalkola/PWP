@@ -11,7 +11,7 @@ __Remember to include all required documentation and HOWTOs, including how to cr
 
 API documentation can be found from [Apiary](https://movietrackerapi.docs.apiary.io/#).
 
-## Movie Tracker Database
+## Setup Instructions
 
 The database management system is SQLite with version 3.33.0
 
@@ -22,6 +22,6 @@ Next, while in root directory of the project, initialize the database by running
 
 If you want to reset the test db, delete "instance" folder which holds the db then run `flask init-db` and `flask testgen` commands again.
 
-### Database tests
+### Pytest Instructions
 
-To run the pytest for the database, run command `pytest` in the folder it is located.
+To run the database and API pytests, run command `pytest --disable-pytest-warnings` in the "tests" folder.
