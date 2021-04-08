@@ -6,7 +6,7 @@ from jsonschema import validate, ValidationError
 from movietracker import db
 from movietracker.models import Movie
 from movietracker.constants import *
-from movietracker.utils import get_uuid, MovieTrackerBuilder, create_error_response
+from movietracker.utils import MovieTrackerBuilder, create_error_response
 
 class MovieCollection(Resource):
 
@@ -17,7 +17,6 @@ class MovieCollection(Resource):
         for movie in movies:
             movie_body = MovieTrackerBuilder(
                 title=movie.title,
-                uuid=movie.uuid,
                 actors=movie.actors,
                 release_date=movie.release_date,
                 score=movie.score,
@@ -35,34 +34,7 @@ class MovieCollection(Resource):
         
         return Response(json.dumps(body), 200, mimetype=MASON)
 
-    """def post(self):
-        if request.json == None:
-            return create_error_response(415, "Unsupported media type", "Request content type must be JSON")
-        try:
-            validate(request.json, Movie.get_schema())
-        except ValidationError as e:
-            return create_error_response(400, "Invalid JSON document", str(e))
-            
-        try:
-            actors = request.json["actors"]
-        except KeyError:
-            actors = None
-            
-        try:
-            release_date = request.json["release_date"]
-        except KeyError:
-            release_date = None
-            
-        try:
-            score = request.json["score"]
-        except KeyError:
-            score = None
-            
-        movie = Movie(title=title, uuid=get_uuid(), actors=actors, release_date=release_date, score=score)
-        db.session.add(movie)
-        db.session.commit()
-        return Response("Storage item successully added", 201, headers={"Location": url_for("api.movieitem", uuid=movie.uuid)})"""
-    
+
 class MovieItem(Resource):
 
     def get(self, movie):
@@ -85,7 +57,6 @@ class MovieItem(Resource):
         for movie in movies:
             movie_body = MovieTrackerBuilder(
                 title=movie.title,
-                uuid=movie.uuid,
                 actors=movie.actors,
                 release_date=movie.release_date,
                 score=movie.score,
