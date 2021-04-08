@@ -238,13 +238,10 @@ class TestMoviesByGenreCollection(object):
         response = client.get(self.RESOURCE_URL)
         assert response.status_code == 200
         body = json.loads(response.data)
-
         # check that genre name in body
         assert "name" in body
-
         _check_control_get_method("self", client, body)
         _check_control_get_method("up", client, body)
-
         # check that items are valid
         for item in body["items"]:
             assert "title" in item
@@ -265,25 +262,15 @@ class TestMoviesByGenreCollection(object):
         # test with wrong content type
         response = client.post(self.RESOURCE_URL, data=json.dumps(valid))
         assert response.status_code == 415
-
         # test with invalid genre
         response = client.post(self.INVALID_URL, json=valid)
         assert response.status_code == 404
-
         # test with valid json
         response = client.post(self.RESOURCE_URL, json=valid)
         assert response.status_code == 201
-
-        # test that added item exists
+        # test that added item exists in given location
         resp = client.get(response.headers["Location"])
         assert resp.status_code == 200
-
-        # test that location header is correct.
-        # db query does not work here so uuid is taken from request
-        data = json.loads(resp.data)["items"][0]
-        uuid = data["uuid"]
-        assert response.headers["Location"].endswith(self.LOCATION_URL + uuid + "/")
-        
         # test with invalid json (remove title)
         valid.pop("title")
         resp = client.post(self.RESOURCE_URL, json=valid)
@@ -301,13 +288,10 @@ class TestSeriesByGenreCollection(object):
         response = client.get(self.RESOURCE_URL)
         assert response.status_code == 200
         body = json.loads(response.data)
-        
         # check that genre name in body
         assert "name" in body
-
         _check_control_get_method("self", client, body)
         _check_control_get_method("up", client, body)
-        
         # check that items are valid
         for item in body["items"]:
             assert "title" in item
@@ -316,42 +300,32 @@ class TestSeriesByGenreCollection(object):
             assert "score" in item
             assert "seasons" in item
 
-            # _check_control_get_method("self", client, item)
+            _check_control_get_method("self", client, item)
             _check_control_get_method("profile", client, item)
 
         # test with invalid genre
         response = client.get(self.INVALID_URL)
         assert response.status_code == 404
     
-    # def test_post(self, client):
-    #     valid = _get_series_json()
+    def test_post(self, client):
+        valid = _get_series_json()
 
-    #     # test with wrong content type
-    #     response = client.post(self.RESOURCE_URL, data=json.dumps(valid))
-    #     assert response.status_code == 415
-
-    #     # test with invalid genre
-    #     response = client.post(self.INVALID_URL, json=valid)
-    #     assert response.status_code == 404
-
-    #     # test with valid json
-    #     response = client.post(self.RESOURCE_URL, json=valid)
-    #     assert response.status_code == 201
-
-    #     # test that added item exists
-    #     resp = client.get(response.headers["Location"])
-    #     assert resp.status_code == 200
-        
-    #     # test that location header is correct.
-    #     # db query does not work here so uuid is taken from request
-    #     data = json.loads(resp.data)["items"][0]
-    #     uuid = data["uuid"]
-    #     assert response.headers["Location"].endswith(self.LOCATION_URL + uuid + "/") 
-        
-    #     # test with invalid json (remove title)
-    #     valid.pop("title")
-    #     resp = client.post(self.RESOURCE_URL, json=valid)
-    #     assert resp.status_code == 400
+        # test with wrong content type
+        response = client.post(self.RESOURCE_URL, data=json.dumps(valid))
+        assert response.status_code == 415
+        # test with invalid genre
+        response = client.post(self.INVALID_URL, json=valid)
+        assert response.status_code == 404
+        # test with valid json
+        response = client.post(self.RESOURCE_URL, json=valid)
+        assert response.status_code == 201
+        # test that added item exists in given location
+        resp = client.get(response.headers["Location"])
+        assert resp.status_code == 200
+        # test with invalid json (remove title)
+        valid.pop("title")
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 400
         
         
 class TestMovieCollection(object):
@@ -369,7 +343,6 @@ class TestMovieCollection(object):
         
         for item in body["items"]:
             assert "title" in item
-            assert "uuid" in item
             assert "actors" in item
             assert "release_date" in item
             assert "score" in item
@@ -384,20 +357,20 @@ class TestMovieItem(object):
     INVALID_URL = "/api/movies/invalid-movie/"
  
     def test_get(self, client):
+        #Test status code
         resp = client.get(self.RESOURCE_URL)
         assert resp.status_code == 200
         body = json.loads(resp.data)
         assert len(body["items"]) >= 1
         
+        #Test attributes and controls
         for item in body["items"]:
-        
             assert item["title"] == "test-movie-1"
-            assert item["uuid"] == "DWDES5GE5PtBQJGMSa7t31"
             assert item["actors"] == "test-actor-1"
             assert item["release_date"] == "test-date-1"
             assert item["score"] == 1
             assert item["genre"] == "action"
-        
+
             _check_control_get_method("self", client, item)
             _check_control_get_method("mt:movies-by-genre", client, item)
             _check_control_put_method("edit", client, item, "movie")
@@ -412,20 +385,15 @@ class TestMovieItem(object):
         assert resp.status_code == 404
         
     def test_put(self, client):
-        
-        # test-movie-5
-        valid = _get_movie_json(5)
-        
-        # test with wrong content type
+
+        #Test invalid media type
+        valid = _get_movie_json()
         resp = client.put(self.RESOURCE_URL, data=json.dumps(valid))
         assert resp.status_code == 415
-        
-        # test with invalid movie name
+        #Test invalid url
         resp = client.put(self.INVALID_URL, json=valid)
         assert resp.status_code == 404
-        
-        # test modifying test-movie-1 to test-movie-5 and
-        # check that edit was succesful
+        #Test resource editing, and confirm changes
         resp = client.put(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 204
         resp = client.get(self.RESOURCE_URL)
@@ -433,27 +401,24 @@ class TestMovieItem(object):
         body = json.loads(resp.data)
         movie = body["items"][0]
         assert movie["title"] == valid["title"]
-        
         # remove field for 400
         valid.pop("title")
         resp = client.put(self.RESOURCE_URL, json=valid)
-        assert resp.status_code == 400
+        assert resp.status_code == 400  
         
     def test_delete(self, client):
-        
-        # delete movie
+        #Test and verify deletion
         resp = client.delete(self.RESOURCE_URL)
         assert resp.status_code == 204
-
-        # check that movie is deleted
         resp = client.get(self.RESOURCE_URL)
         assert resp.status_code == 404
-
-        # try to delete movie that is not in database
+        #Test Invalid deletion
         resp = client.delete(self.INVALID_URL)
         assert resp.status_code == 404
 
+
 class TestSeriesCollection(object):
+
     RESOURCE_URL = "/api/series/"
     
     def test_get(self, client):
@@ -465,6 +430,7 @@ class TestSeriesCollection(object):
         _check_namespace(client, body)
         _check_control_get_method("self", client, body)
         _check_control_get_method("mt:all-genres", client, body)
+        
         #Test that all attributes are found in items
         for item in body["items"]:
             assert "title" in item
@@ -473,15 +439,15 @@ class TestSeriesCollection(object):
             assert "score" in item
             assert "seasons" in item
             assert "genre" in item
-            print(item["@controls"]["self"])
+            
             _check_control_get_method("self", client, item)
             _check_control_get_method("profile", client, item)
+
 
 class TestSeriesItem(object):
  
     RESOURCE_URL = "/api/series/638P5GEe3c8QmAtiUaYAE31/"
-    INVALID_URL = "/api/series/test-series-xd/"
-    MODIFIED_URL = "/api/series/test-series-99/"
+    INVALID_URL = "/api/series/invalid-series/"
  
     def test_get(self, client):
         #Test status code and attribute values
@@ -497,7 +463,7 @@ class TestSeriesItem(object):
         #Test namespace and controls
         _check_namespace(client, body)
         _check_control_get_method("self", client, body)
-        _check_control_get_method("collection", client, body)        
+        _check_control_get_method("collection", client, body)
         _check_control_get_method("mt:series-by-genre", client, body)
         _check_control_put_method("edit", client, body, "series")
         _check_control_delete_method("mt:delete", client, body)
@@ -518,6 +484,10 @@ class TestSeriesItem(object):
         resp = client.get(self.RESOURCE_URL)
         assert resp.status_code == 200
         assert json.loads(resp.data)["title"] == valid["title"]
+        # remove field for 400
+        valid.pop("title")
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 400
         
     def test_delete(self, client):
         #Test and verify deletion
