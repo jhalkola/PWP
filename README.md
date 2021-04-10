@@ -32,4 +32,5 @@ To start development server, use `flask run`. Environmental variables FLASK_APP 
 ## Pytests
 
 To run the database and API pytests, run command `pytest --disable-pytest-warnings` in the "tests" folder.  
-To run pytest with coverage, use `pytest --disable-pytest-warnings --cov-report term-missing --cov=movietracker`.
+To run pytest with coverage, use `pytest --disable-pytest-warnings --cov-report term-missing --cov=movietracker`.  
+--disable-pytest-warnings is used to make the test output a bit cleaner, as pytest wants to show bunch of deprecation warnings which have nothing to do with our tests.
