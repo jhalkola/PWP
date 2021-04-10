@@ -41,7 +41,7 @@ class Movie(db.Model):
         props["release_date"] =  {
             "description": "Release date of the movie",
             "type": "string",
-            "pattern": "^[0-3][0-9]-[01][0-9]-[0-9]{4}$"
+            "pattern": "^[0-9]{4}-[01][0-9]-[0-3][0-9]$"
         }
         props["score"] = {
             "description": "IMDb score of the movie",
@@ -67,7 +67,7 @@ class Movie(db.Model):
         props["release_date"] =  {
             "description": "Release date of the movie",
             "type": "string",
-            "pattern": "^[0-3][0-9]-[01][0-9]-[0-9]{4}$"
+            "pattern": "^[0-9]{4}-[01][0-9]-[0-3][0-9]$"
         }
         props["score"] = {
             "description": "IMDb score of the movie",
@@ -111,7 +111,7 @@ class Series(db.Model):
         props["release_date"] =  {
             "description": "Release date of the series",
             "type": "string",
-            "pattern": "^[0-3][0-9]-[01][0-9]-[0-9]{4}$"
+            "pattern": "^[0-9]{4}-[01][0-9]-[0-3][0-9]$"
         }
         props["score"] = {
             "description": "IMDb score of the series",
@@ -141,7 +141,7 @@ class Series(db.Model):
         props["release_date"] =  {
             "description": "Release date of the series",
             "type": "string",
-            "pattern": "^[0-3][0-9]-[01][0-9]-[0-9]{4}$"
+            "pattern": "^[0-9]{4}-[01][0-9]-[0-3][0-9]$"
         }
         props["score"] = {
             "description": "IMDb score of the series",
@@ -176,7 +176,7 @@ def generate_test_data():
         title="The Avengers",
         uuid=get_uuid(),
         actors="Robert Downey Jr.",
-        release_date="11-04-2012",
+        release_date="2012-04-11",
         score=8.0,
         genre=Genre.query.filter_by(name="action").first()
     ))
@@ -184,7 +184,7 @@ def generate_test_data():
         title="Sherlock Holmes",
         uuid=get_uuid(),
         actors="Robert Downey Jr.",
-        release_date="25-12-2009",
+        release_date="2009-12-25",
         score=8.0,
         genre=Genre.query.filter_by(name="crime").first()
     ))
@@ -193,7 +193,7 @@ def generate_test_data():
             title="Breaking Bad",
             actors="Bryan Cranston",
             uuid=get_uuid(),
-            release_date="20-01-2008",
+            release_date="2008-01-20",
             score=9.5,
             seasons=5,
             genre=Genre.query.filter_by(name="crime").first()
@@ -202,7 +202,7 @@ def generate_test_data():
             title="Game of Thrones",
             uuid=get_uuid(),
             actors="Emilia Clarke, Kit Harrington",
-            release_date="17-04-2011",
+            release_date="2011-04-17",
             score=9.5,
             seasons=8,
             genre=Genre.query.filter_by(name="fantasy").first()

@@ -83,9 +83,9 @@ class SeriesItem(Resource):
             genre = request.json["genre"]
             db_genre = Genre.query.filter_by(name=genre).first()
             if db_genre is None:
-                return create_error_response(404,
-                    "Not found",
-                    "Genre with name '{}' cannot be found.".format(genre)
+                return create_error_response(400,
+                    "Invalid JSON document",
+                    "Genre with name '{}' cannot be found".format(genre)
                     )
             else:
                 request.json["genre"] = db_genre
@@ -97,7 +97,8 @@ class SeriesItem(Resource):
         db.session.commit()
         return Response(status=204, headers={
             "Location": url_for("api.seriesitem", series=db_series.uuid)
-            })
+            }, mimetype=MASON
+            )
 
     def delete(self, series):
         db_series = Series.query.filter_by(uuid=series).first()

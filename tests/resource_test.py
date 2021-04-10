@@ -75,14 +75,14 @@ def _get_movie_json(method, number=1):
         movie_json = {
             "title": "extra-movie-{}".format(number),
             "actors": "extra-actors-{}".format(number),
-            "release_date": "0{}-01-2000".format(number),
+            "release_date": "2000-01-0{}".format(number),
             "score": number
         }
     else:
         movie_json = {
             "title": "extra-movie-{}".format(number),
             "actors": "extra-actors-{}".format(number),
-            "release_date": "0{}-01-2000".format(number),
+            "release_date": "2000-01-0{}".format(number),
             "score": number,
             "genre": "action"
 
@@ -97,7 +97,7 @@ def _get_series_json(method, number=1):
         series_json = {
             "title": "extra-series-{}".format(number),
             "actors": "extra-actors-{}".format(number),
-            "release_date": "0{}-01-2000".format(number),
+            "release_date": "2000-01-0{}".format(number),
             "score": number,
             "seasons": number
         }
@@ -105,7 +105,7 @@ def _get_series_json(method, number=1):
         series_json = {
             "title": "extra-series-{}".format(number),
             "actors": "extra-actors-{}".format(number),
-            "release_date": "0{}-01-2000".format(number),
+            "release_date": "2000-01-0{}".format(number),
             "score": number,
             "seasons": number,
             "genre": "action"

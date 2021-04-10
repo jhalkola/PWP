@@ -41,8 +41,8 @@ class MovieItem(Resource):
         movie = Movie.query.filter_by(uuid=movie).first()
         if movie is None:
             return create_error_response(404,
-                "Not found",
-                "Movie with name '{}' cannot be found.".format(movie)
+                "Movie not found",
+                "Movie with uuid '{}' cannot be found".format(movie)
             )
                 
         movie_body = MovieTrackerBuilder(
@@ -73,17 +73,17 @@ class MovieItem(Resource):
         movie = Movie.query.filter_by(uuid=movie).first()
         if movie is None:
             return create_error_response(404,
-                "Not found",
-                "Movie with name '{}' cannot be found.".format(movie)
+                "Movie not found",
+                "Movie with uuid '{}' cannot be found".format(movie)
                 )
 
         if "genre" in request.json:
             genre = request.json["genre"]
             db_genre = Genre.query.filter_by(name=genre).first()
             if db_genre is None:
-                return create_error_response(404,
-                    "Not found",
-                    "Genre with name '{}' cannot be found.".format(genre)
+                return create_error_response(400,
+                    "Invalid JSON document",
+                    "Genre with name '{}' cannot be found".format(genre)
                     )
             else:
                 request.json["genre"] = db_genre
@@ -95,14 +95,20 @@ class MovieItem(Resource):
 
         db.session.add(movie)
         db.session.commit()
-        return Response("Movie successully edited", 204, headers={"Location": url_for("api.movieitem", movie=movie)})
+        return Response(status=204, headers={
+            "Location": url_for("api.movieitem", movie=movie.uuid)
+            }, mimetype=MASON
+            )
         
     def delete(self, movie):
         movie = Movie.query.filter_by(uuid=movie).first()
         if movie is None:
-            return create_error_response(404, "Not found", "Movie with name '{}' cannot be found.".format(movie))
+            return create_error_response(404,
+                "Movie not found",
+                "Movie with uuid '{}' cannot be found".format(movie)
+                )
         
         db.session.delete(movie)
         db.session.commit()
-        return Response("Movie was deleted successully", 204)
+        return Response(status=204, mimetype=MASON)
         

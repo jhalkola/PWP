@@ -118,7 +118,8 @@ class MoviesByGenreCollection(Resource):
         
         return Response(status=201, headers={
                 "Location": url_for("api.movieitem", movie=movie.uuid)
-            })
+            }, mimetype=MASON
+            )
 
 
 class SeriesByGenreCollection(Resource):
@@ -189,4 +190,5 @@ class SeriesByGenreCollection(Resource):
     
         return Response(status=201, headers={
             "Location": url_for("api.seriesitem", series=series.uuid)
-            })
+            }, mimetype=MASON
+            )

@@ -137,6 +137,7 @@ class MovieTrackerBuilder(MasonBuilder):
             href=href,
             method="PUT",
             encoding="json",
+            title="Edit this item",
             schema=schema
         )
         
@@ -144,7 +145,8 @@ class MovieTrackerBuilder(MasonBuilder):
         self.add_control(
             "mt:delete",
             href=href,
-            method="DELETE"
+            method="DELETE",
+            title="Delete this item"
         )
 
 def create_error_response(status_code, title, message=None):
