@@ -159,7 +159,7 @@ Get the API entry point
             {
                 "@namespaces": {
                     "mt": {
-                       "name": "/movie-tracker/link-relations#" 
+                       "name": "/movie-tracker/link-relations/" 
                     }
                 },
                 "@controls": {
@@ -168,7 +168,7 @@ Get the API entry point
                         "title": "collection of all movies"
                     },
                     "mt:all-series": {
-                        "href": "/api/movies/",
+                        "href": "/api/series/",
                         "title": "collection of all series"
                     },
                     "mt:all-genres": {
@@ -203,7 +203,7 @@ Get a list of all genres in the API.
             {
                 "@namespaces": {
                     "mt": {
-                       "name": "/movie-tracker/link-relations#" 
+                       "name": "/movie-tracker/link-relations/" 
                     }
                 },
                 "@controls": {
@@ -295,7 +295,7 @@ Representation of a genre.
                 "name": "Action",
                 "@namespaces": {
                     "mt": {
-                       "name": "/movie-tracker/link-relations#" 
+                       "name": "/movie-tracker/link-relations/" 
                     }
                 },
                 "@controls": {
@@ -303,16 +303,17 @@ Representation of a genre.
                         "href": "/api/genres/action/"
                     },
                     "up": {
-                        "href": "/api/genres/",
-                        "title": "List of all genres"
+                        "href": "/api/genres/"
                     },
                     "mt:movies-by-genre": {
-                        "href": "/api/genres/action/movies/",
-                        "title": "Collection of all movies in the genre"
+                        "method": "GET",
+                        "title": "Collection of all movies in the genre",
+                        "href": "/api/genres/action/movies/"
                     },
                     "mt:series-by-genre": {
-                        "href": "/api/genres/action/series/",
-                        "title": "Collection of all series in the genre"
+                        "method": "GET",
+                        "title": "Collection of all series in the genre",
+                        "href": "/api/genres/action/series/"
                     }
                 }
             }
@@ -327,7 +328,8 @@ Representation of a genre.
                 "resource_url": "/api/genres/hemuli/",
                 "@error": {
                     "@message": "Genre not found",
-                    "@messages": [null]
+                    "@messages": [
+                        "Genre with name 'hemuli' does not exist"
                 },
                 "@controls": {
                     "profile": {
@@ -362,7 +364,7 @@ Get list of all movies
             {
                 "@namespaces": {
                     "mt": {
-                       "name": "/movie-tracker/link-relations#" 
+                       "name": "/movie-tracker/link-relations/" 
                     }
                 },
                 "@controls": {
@@ -370,15 +372,16 @@ Get list of all movies
                         "href": "/api/movies/"
                     },
                     "mt:all-genres": {
-                        "href": "/api/genres/",
-                        "title": "collection of all genres"
+                        "method": "GET",
+                        "title": "collection of all genres",
+                        "href": "/api/genres/"
                     }
                 },
                 "items": [ 
                     {
                         "title": "Avengers: Endgame",
                         "actors": "Robert Downey Jr., Chris Evans",
-                        "release_date": "11-04-2019",
+                        "release_date": "2019-04-11",
                         "score": 8.9,
                         "genre": "Action",
                         "@controls": {
@@ -436,7 +439,7 @@ Get a list of movies belonging to one genre.
                 "name": "Action
                 "@namespaces": {
                     "mt": {
-                       "name": "/movie-tracker/link-relations#" 
+                       "name": "/movie-tracker/link-relations/" 
                     }
                 },
                 "@controls": {
@@ -448,13 +451,13 @@ Get a list of movies belonging to one genre.
                         "title": "A collection of action movies"
                     },
                     "mt:add-movie": {
-                        "href": "/api/genres/action/movie/,
                         "method": "POST",
                         "encoding": "json",
-                        "title": "Add new movie to the API",
-                        "schema":
+                        "title": "Add movie to the API",
                         "schema": {
                             "type": "object",
+                            "required": ["title", "release_date"],
+                            "additionalProperties": false,
                             "properties": {
                                 "title": {
                                     "description": "Movie name",
@@ -473,16 +476,16 @@ Get a list of movies belonging to one genre.
                                     "description": "IMDb score of movie",
                                     "type": "number"
                                 }
-                            },
-                            "required": ["title", "release_date"]
-                        }
+                            }
+                        },
+                        "href": "/api/genres/action/movies/"
                     }
                 },
                 "items": [ 
                     {
                         "title": "Avengers: Endgame",
                         "actors": "Robert Downey Jr., Chris Evans",
-                        "release_date": "11-04-2019",
+                        "release_date": "2019-04-11",
                         "score": 8.9,
                         "@controls": {
                             "self": {
@@ -512,7 +515,7 @@ Get a list of movies belonging to one genre.
 
 + Response 404 (application/vnd.mason+json)
 
-    The client is trying to add movie to genre that does not exist.
+    The client is trying to get movies from genre that does not exist.
 
     + Body
 
@@ -560,11 +563,11 @@ Add a movie to the API
 
     + Headers
 
-            Location: /api/movies/H7nFHeUWv6r2XNqfxV5kKV/
+            Location: /api/movies/mk5fMpVDR8hoMLidjMRJKX/
 
 + Response 400 (application/vnd.mason+json)
 
-    The client is trying to send a JSON document that doesn't validate against the schema.
+    The client is trying to send a JSON document that doesn't validate against the schema or genre is invalid.
 
     + Body
 
@@ -615,7 +618,7 @@ Add a movie to the API
                 "@error": {
                     "@message": "Unsupported media type",
                     "@messages": [
-                        "Use JSON"
+                        "Requests must be JSON"
                     ]
                 },
                 "@controls": {
@@ -652,12 +655,12 @@ Get representation of a movie
             {
                 "title": "Avengers: Endgame",
                 "actors": "Robert Downey Jr., Chris Evans",
-                "release_date": "11-04-2019",
+                "release_date": "2019-04-11",
                 "score": 8.9,
                 "genre": "Action",
                 "@namespaces": {
                     "mt": {
-                       "name": "/movie-tracker/link-relations#" 
+                       "name": "/movie-tracker/link-relations/" 
                     }
                 },
                 "@controls": {
@@ -665,20 +668,20 @@ Get representation of a movie
                         "href": "/api/movies/H7nFHeUWv6r2XNqfxV5kKV/"
                     },
                     "collection": {
-                        "href": "/api/movies/",
-                        "title": "collection of all movies"
+                        "href": "/api/movies/"
                     },
                     "mt:movies-by-genre": {
-                        "href": "/api/genres/action/movies/",
-                        "title": "collection of all movies in genre"
+                        "method": "GET",
+                        "title": "collection of all movies in genre",
+                        "href": "/api/genres/action/movies/"
                     },
                     "edit": {
-                        "href": "/api/movies/H7nFHeUWv6r2XNqfxV5kKV/",
-                        "title": "Edit movie properties",
-                        "encoding": "json",
                         "method": "PUT",
+                        "encoding": "json",
+                        "title": "Edit this item",
                         "schema": {
                             "type": "object",
+                            "additionalProperties": false,
                             "properties": {
                                 "title": {
                                     "description": "Movie name",
@@ -696,15 +699,19 @@ Get representation of a movie
                                 "score": {
                                     "description": "IMDb score of movie",
                                     "type": "number"
+                                },
+                                "genre": {
+                                    "description": "Genre of the movie",
+                                    "type": "string"
                                 }
-                            },
-                            "required": ["title", "release_date"]
-                        }
+                            }
+                        },
+                        "href": "/api/movies/H7nFHeUWv6r2XNqfxV5kKV/"
                     },
                     "mt:delete": {
-                        "href": "/api/movies/H7nFHeUWv6r2XNqfxV5kKV/",
-                        "title": "Delete this movie",
-                        "method": "DELETE"
+                        "method": "DELETE",
+                        "title": "Delete this item",
+                        "href": "/api/movies/H7nFHeUWv6r2XNqfxV5kKV/"
                     }
                 }
             }
@@ -719,7 +726,9 @@ Get representation of a movie
                 "resource_url": "/api/movies/lalaland/",
                 "@error": {
                     "@message": "Movie not found",
-                    "@messages": [null]
+                    "@messages": [
+                        "Movie with uuid 'lalaland' cannot be found"
+                    ]
                 },
                 "@controls": {
                     "profile": {
@@ -745,22 +754,26 @@ Edit movie
             {
                 "title": "Avengers: Endgame",
                 "actors": "Robert Downey Jr., Chris Evans, Scarlett Johansson",
-                "release_date": "11-04-2019",
-                "score": 8.9
+                "release_date": "2019-04-11",
+                "score": 8.9,
+                "genre": "crime"
             }
         
 + Response 204
 
+    + Headers
+
+            Location: /api/movies/H7nFHeUWv6r2XNqfxV5kKV/
+
 + Response 400 (application/vnd.mason+json)
 
-    The client is trying to send a JSON document that doesn't validate against the schema, or has non-existent release date.
-
+    The client is trying to send a JSON document that doesn't validate against the schema or genre is invalid.
     + Body
 
             {
                 "resource_url": "/api/movies/H7nFHeUWv6r2XNqfxV5kKV/",
                 "@error": {
-                    "@message": "Something went wrong",
+                    "@message": "Invalid JSON document",
                     "@messages": [
                         ""
                     ]
@@ -783,7 +796,7 @@ Edit movie
                 "@error": {
                     "@message": "movie not found",
                     "@messages": [
-                        ""
+                        "Movie with uuid 'superman' cannot be found"
                     ]
                 },
                 "@controls": {
@@ -792,7 +805,7 @@ Edit movie
                     }
                 }
             }
-        
+
 + Response 415 (application/vnd.mason+json)
 
     The client sent a request with the wrong content type or the request body was not valid JSON.
@@ -804,7 +817,7 @@ Edit movie
                 "@error": {
                     "@message": "Unsupported media type",
                     "@messages": [
-                        "Use JSON"
+                        "Request content type must be JSON"
                     ]
                 },
                 "@controls": {
@@ -837,8 +850,10 @@ Deletes the movie.
             {
                 "resource_url": "/api/movies/superman/",
                 "@error": {
-                    "@message": "Series not found",
-                    "@messages": [null]
+                    "@message": "Movie not found",
+                    "@messages": [
+                        "Movie with uuid 'superman' cannot be found"
+                    ]
                 },
                 "@controls": {
                     "profile": {
@@ -872,7 +887,7 @@ Get a list of all series in the API.
             {
                 "@namespaces": {
                     "mt": {
-                       "name": "/movie-tracker/link-relations#" 
+                       "name": "/movie-tracker/link-relations/" 
                     }
                 },
                 "@controls": {
@@ -880,15 +895,16 @@ Get a list of all series in the API.
                         "href": "/api/series/"
                     },
                     "mt:all-genres": {
-                        "href": "/api/genres/",
-                        "title": "collection of all genres"
+                        "method": "GET",
+                        "title": "collection of all genres",
+                        "href": "/api/genres/"
                     }
                 },
                 "items": [ 
                     {
                         "title": "Breaking Bad",
                         "actors": "Bryan Cranston ",
-                        "release_date": "04-08-2018",
+                        "release_date": "2018-04-08",
                         "score": 9.2,
                         "seasons": 4,
                         "genre": "Action",
@@ -904,7 +920,7 @@ Get a list of all series in the API.
                     {
                         "title": "White Collar",
                         "actors": "Matt Bomer ",
-                        "release_date": "18-07-2009",
+                        "release_date": "2009-07-18",
                         "score": 7.6,
                         "seasons": 1,
                         "genre": "Action",
@@ -948,7 +964,7 @@ Get a list of series belonging to one genre.
                 "name": "Action",
                 "@namespaces": {
                     "mt": {
-                       "name": "/movie-tracker/link-relations#" 
+                       "name": "/movie-tracker/link-relations/" 
                     }
                 },
                 "@controls": {
@@ -956,17 +972,16 @@ Get a list of series belonging to one genre.
                         "href": "/api/genres/action/series/"
                     },
                     "up": {
-                        "href": "/api/genres/action/",
-                        "title": "A collection of action series"
+                        "href": "/api/genres/action/"
                     },
                     "mt:add-series": {
-                        "href": "/api/genres/action/series/,
                         "method": "POST",
                         "encoding": "json",
-                        "title": "Add new series to the API",
-                        "schema":
+                        "title": "Add series to the API",
                         "schema": {
                             "type": "object",
+                            "required":["title", "release_date", "seasons"],
+                            "additionalProperties": false,
                             "properties": {
                                 "title": {
                                     "description": "Series name",
@@ -989,17 +1004,18 @@ Get a list of series belonging to one genre.
                                     "description": "Number of seasons",
                                     "type": "number"
                                 }
-                            },
-                            "required": ["title", "release_date", "seasons"]
-                        }
+                            }
+                        },
+                        "href": "/api/genres/action/series/
                     }
                 },
                 "items": [ 
                     {
                         "title": "Breaking Bad",
                         "actors": "Bryan Cranston ",
-                        "release_date": "04-08-2018",
+                        "release_date": "2018-04-08",
                         "score": 9.2
+                        "seasons": 4,
                         "@controls": {
                             "self": {
                                 "href": "/api/series/X7vU9WcbzbicpAardkdprT/"
@@ -1012,11 +1028,12 @@ Get a list of series belonging to one genre.
                     {
                         "title": "White Collar",
                         "actors": "Matt Bomer ",
-                        "release_date": "18-07-2009",
-                        "score": 7.6
+                        "release_date": "2009-07-18",
+                        "score": 7.6,
+                        "seasons": 1,
                         "@controls": {
                             "self": {
-                                "href": "/api/series/X7vU9WcbzbicpAardkdprT/"
+                                "href": "/api/series/DFLPUJZQpFJjFeAZxwvz7j/"
                             },
                             "profile": {
                                 "href": "/profiles/series/"
@@ -1036,7 +1053,9 @@ Get a list of series belonging to one genre.
                 "resource_url": "/api/genres/hemuli/series/",
                 "@error": {
                     "@message": "Genre not found",
-                    "@messages": [null]
+                    "@messages": [
+                        "Genre with name 'hemuli' cannot be found"
+                    ]
                 },
                 "@controls": {
                     "profile": {
@@ -1061,8 +1080,8 @@ Add a series to the API
 
             {
                 "title": "The Queens Gambit",
-                "actors": "Anya Taylor-Joy ",
-                "release_date": "27-08-2020",
+                "actors": "Anya Taylor-Joy",
+                "release_date": "2020-08-27",
                 "score": 8.5,
                 "seasons": 1
             }
@@ -1075,7 +1094,7 @@ Add a series to the API
 
 + Response 400 (application/vnd.mason+json)
 
-    The client is trying to send a JSON document that doesn't validate against the schema.
+    The client is trying to send a JSON document that doesn't validate against the schema or genre is invalid.
 
     + Body
 
@@ -1126,7 +1145,7 @@ Add a series to the API
                 "@error": {
                     "@message": "Unsupported media type",
                     "@messages": [
-                        "Use JSON"
+                        "Requests must be JSON"
                     ]
                 },
                 "@controls": {
@@ -1163,13 +1182,13 @@ Get representation of a series
             {
                 "title": "White Collar",
                 "actors": "Matt Bomer ",
-                "release_date": "18-07-2009",
+                "release_date": "2009-07-18",
                 "score": 7.6,
                 "seasons": 1,
                 "genre": "Action",
                 "@namespaces": {
                     "mt": {
-                       "name": "/movie-tracker/link-relations#" 
+                       "name": "/movie-tracker/link-relations/" 
                     }
                 },
                 "@controls": {
@@ -1178,19 +1197,19 @@ Get representation of a series
                     },
                     "collection": {
                         "href": "/api/series/",
-                        "title": "collection of all series"
                     },
                     "mt:series-by-genre": {
-                        "href": "/api/genres/action/series/",
-                        "title": "collection of all series in genre"
+                        "method": "GET",
+                        "title": "Collection of all series in the genre",
+                        "href": "/api/genres/crime/series/"
                     },
                     "edit": {
-                        "href": "/api/series/DFLPUJZQpFJjFeAZxwvz7j/",
-                        "title": "Edit movie properties",
-                        "encoding": "json",
                         "method": "PUT",
+                        "encoding": "json",
+                        "title": "Edit this item",
                         "schema": {
                             "type": "object",
+                            "additionalProperties": false,
                             "properties": {
                                 "title": {
                                     "description": "Series name",
@@ -1212,15 +1231,19 @@ Get representation of a series
                                 "seasons": {
                                     "description": "Number of seasons",
                                     "type": "number"
+                                },
+                                "genre":{
+                                    "description": "Genre of the series",
+                                    "type": "string"
                                 }
-                            },
-                            "required": ["title", "release_date", "seasons"]
-                        }
+                            }
+                        },
+                        "href": "/api/series/DFLPUJZQpFJjFeAZxwvz7j/"
                     },
                     "mt:delete": {
-                        "href": "/api/series/DFLPUJZQpFJjFeAZxwvz7j/",
-                        "title": "Delete this series",
-                        "method": "DELETE"
+                        "method": "DELETE",
+                        "title": "Delete this item",
+                        "href": "/api/series/DFLPUJZQpFJjFeAZxwvz7j/"
                     }
                 }
             }
@@ -1235,7 +1258,9 @@ Get representation of a series
                 "resource_url": "/api/series/lalaland/",
                 "@error": {
                     "@message": "Series not found",
-                    "@messages": [null]
+                    "@messages": [
+                        "Series with uuid 'lalaland' does not exist"
+                    ]
                 },
                 "@controls": {
                     "profile": {
@@ -1260,23 +1285,28 @@ Edit series
             {
                 "title": "White Collar",
                 "actors": "Matt Bomer ",
-                "release_date": "18-07-2009",
+                "release_date": "2009-07-18",
                 "score": 7.6,
-                "seasons": 1
+                "seasons": 1,
+                "genre": "romance"
             }
         
 + Response 204
 
+    + Headers
+    
+            Location: /api/series/DFLPUJZQpFJjFeAZxwvz7j/
+
 + Response 400 (application/vnd.mason+json)
 
-    The client is trying to send a JSON document that doesn't validate against the schema, or has non-existent release date.
+    The client is trying to send a JSON document that doesn't validate against the schema or genre is invalid.
 
     + Body
 
             {
                 "resource_url": "/api/series/DFLPUJZQpFJjFeAZxwvz7j/",
                 "@error": {
-                    "@message": "Something went wrong",
+                    "@message": "Invalid JSON document",
                     "@messages": [
                         ""
                     ]
@@ -1295,11 +1325,11 @@ Edit series
     + Body
 
             {
-                "resource_url": "/api/series/DFLPUJZQpFJjFeAZxwvz7j/",
+                "resource_url": "/api/series/lalaland/",
                 "@error": {
                     "@message": "Series not found",
                     "@messages": [
-                        ""
+                        "Series with uuid 'lalaland' does not exist"
                     ]
                 },
                 "@controls": {
@@ -1308,7 +1338,7 @@ Edit series
                     }
                 }
             }
-        
+
 + Response 415 (application/vnd.mason+json)
 
     The client sent a request with the wrong content type or the request body was not valid JSON.
@@ -1320,7 +1350,7 @@ Edit series
                 "@error": {
                     "@message": "Unsupported media type",
                     "@messages": [
-                        "Use JSON"
+                        "Requests must be JSON"
                     ]
                 },
                 "@controls": {
@@ -1351,10 +1381,12 @@ Deletes the series.
     + Body
 
             {
-                "resource_url": "/api/series/the-mandalorian/",
+                "resource_url": "/api/series/superman/",
                 "@error": {
                     "@message": "Series not found",
-                    "@messages": [null]
+                    "@messages": [
+                        "Series with uuid 'superman' does not exist"
+                    ]
                 },
                 "@controls": {
                     "profile": {
