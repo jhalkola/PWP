@@ -34,6 +34,7 @@ class SeriesCollection(Resource):
 class SeriesItem(Resource):
     
     def get(self, series):
+        # check that series exists
         db_series = Series.query.filter_by(uuid=series).first()
         if db_series is None:
             return create_error_response(
@@ -60,6 +61,7 @@ class SeriesItem(Resource):
         return Response(json.dumps(body), 200, mimetype=MASON)
 
     def put(self, series):
+        # check that series exists
         db_series = Series.query.filter_by(uuid=series).first()
         if db_series is None:
             return create_error_response(
@@ -68,39 +70,46 @@ class SeriesItem(Resource):
                 "Series with uuid '{}' does not exist".format(series)
             )
         
+        # check media type
         if not request.json:
             return create_error_response(
                 415, "Unsupported media type",
                 "Requests must be JSON"
             )
 
+        # validate JSON
         try:
             validate(request.json, Series.get_schema_put())
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
 
-        if "genre" in request.json:
-            genre = request.json["genre"]
-            db_genre = Genre.query.filter_by(name=genre).first()
-            if db_genre is None:
-                return create_error_response(400,
-                    "Invalid JSON document",
-                    "Genre with name '{}' cannot be found".format(genre)
-                    )
-            else:
-                request.json["genre"] = db_genre
+        # check that given genre exists
+        genre = request.json["genre"]
+        db_genre = Genre.query.filter_by(name=genre).first()
+        if db_genre is None:
+            return create_error_response(400,
+                "Invalid JSON document",
+                "Genre with name '{}' cannot be found".format(genre)
+                )
+        else:
+            request.json["genre"] = db_genre
 
-        for attr in request.json:
-            setattr(db_series, attr, request.json[attr])
+        # set properties
+        for attr in Series.get_schema_put()["properties"]:
+            try:
+                setattr(db_series, attr, request.json[attr])
+            except KeyError:
+                return create_error_response(400,
+                    "Missing property in JSON file",
+                    "Property '{}' was not found".format(attr)
+                    )
         
         db.session.add(db_series)
         db.session.commit()
-        return Response(status=204, headers={
-            "Location": url_for("api.seriesitem", series=db_series.uuid)
-            }, mimetype=MASON
-            )
+        return Response(status=204, mimetype=MASON)
 
     def delete(self, series):
+        # check that series exists
         db_series = Series.query.filter_by(uuid=series).first()
         if db_series is None:
             return create_error_response(

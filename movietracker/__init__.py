@@ -45,6 +45,10 @@ def create_app(test_config=None):
 
         return Response(json.dumps(body), 200, mimetype=MASON)
 
+    @app.route("/test/")
+    def admin_site():
+        return app.send_static_file("html/admin.html")
+
     @app.route(LINK_RELATIONS_URL)
     def send_link_relations():
         return "link relations"

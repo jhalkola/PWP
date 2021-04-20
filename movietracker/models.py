@@ -36,7 +36,7 @@ class Movie(db.Model):
         }
         props["actors"] =  {
             "description": "Actors on the movie",
-            "type": "string"
+            "type": ["string", "null"]
         }
         props["release_date"] =  {
             "description": "Release date of the movie",
@@ -45,7 +45,7 @@ class Movie(db.Model):
         }
         props["score"] = {
             "description": "IMDb score of the movie",
-            "type": "number"
+            "type": ["number", "null"]
         }
         return schema
 
@@ -53,6 +53,7 @@ class Movie(db.Model):
     def get_schema_put():
         schema = {
             "type": "object",
+            "required": ["title", "release_date", "genre"],
             "additionalProperties": False
         }
         props = schema["properties"] = {}
@@ -62,7 +63,7 @@ class Movie(db.Model):
         }
         props["actors"] =  {
             "description": "Actors on the movie",
-            "type": "string"
+            "type": ["string", "null"]
         }
         props["release_date"] =  {
             "description": "Release date of the movie",
@@ -71,7 +72,7 @@ class Movie(db.Model):
         }
         props["score"] = {
             "description": "IMDb score of the movie",
-            "type": "number"
+            "type": ["number", "null"]
         }
         props["genre"] = {
             "description": "Genre of the movie",
@@ -106,7 +107,7 @@ class Series(db.Model):
         }
         props["actors"] =  {
             "description": "Actors on the series",
-            "type": "string"
+            "type": ["string", "null"]
         }
         props["release_date"] =  {
             "description": "Release date of the series",
@@ -115,11 +116,11 @@ class Series(db.Model):
         }
         props["score"] = {
             "description": "IMDb score of the series",
-            "type": "number"
+            "type": ["number", "null"]
         }
         props["seasons"] = {
             "description": "Number of seasons",
-            "type": "number"
+            "type": "integer"
         }
         return schema
 
@@ -127,6 +128,7 @@ class Series(db.Model):
     def get_schema_put():
         schema = {
             "type": "object",
+            "required": ["title", "release_date", "seasons", "genre"],
             "additionalProperties": False
         }
         props = schema["properties"] = {}
@@ -136,7 +138,7 @@ class Series(db.Model):
         }
         props["actors"] =  {
             "description": "Actors on the series",
-            "type": "string"
+            "type": ["string", "null"]
         }
         props["release_date"] =  {
             "description": "Release date of the series",
@@ -145,11 +147,11 @@ class Series(db.Model):
         }
         props["score"] = {
             "description": "IMDb score of the series",
-            "type": "number"
+            "type": ["number", "null"]
         }
         props["seasons"] = {
             "description": "Number of seasons",
-            "type": "number"
+            "type": "integer"
         }
         props["genre"] = {
             "description": "Genre of the series",
@@ -185,13 +187,11 @@ def generate_test_data():
         uuid=get_uuid(),
         actors="Robert Downey Jr.",
         release_date="2009-12-25",
-        score=8.0,
         genre=Genre.query.filter_by(name="crime").first()
     ))
 
     db.session.add(Series(
             title="Breaking Bad",
-            actors="Bryan Cranston",
             uuid=get_uuid(),
             release_date="2008-01-20",
             score=9.5,

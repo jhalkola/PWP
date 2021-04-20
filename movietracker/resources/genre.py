@@ -2,7 +2,6 @@ import json
 from flask import Response, request, url_for
 from flask_restful import Resource
 from jsonschema import validate, ValidationError
-from sqlalchemy.exc import IntegrityError
 from movietracker import db
 from movietracker.models import Genre, Movie, Series
 from movietracker.constants import *
@@ -32,8 +31,8 @@ class GenreCollection(Resource):
 class GenreItem(Resource):
 
     def get(self, genre):
+        # check that genre exists
         db_genre = Genre.query.filter_by(name=genre).first()
-
         if db_genre is None:
             return create_error_response(404,
                 "Genre not found",
@@ -55,8 +54,8 @@ class GenreItem(Resource):
 class MoviesByGenreCollection(Resource):
 
     def get(self, genre):
+        # check that genre exists
         db_genre = Genre.query.filter_by(name=genre).first()
-
         if db_genre is None:
             return create_error_response(404,
                 "Genre not found",
@@ -85,6 +84,7 @@ class MoviesByGenreCollection(Resource):
         return Response(json.dumps(body), 200, mimetype=MASON)
 
     def post(self, genre):
+        # check that genre exists
         db_genre = Genre.query.filter_by(name=genre).first()
         if db_genre is None:
             return create_error_response(404,
@@ -92,12 +92,14 @@ class MoviesByGenreCollection(Resource):
                 "Genre with name '{}' does not exist".format(genre)
             )
 
+        # check media type
         if not request.json:
             return create_error_response(
                 415, "Unsupported media type",
                 "Requests must be JSON"
             )
 
+        # validate JSON
         try:
             validate(request.json, Movie.get_schema_post())
         except ValidationError as e:
@@ -109,9 +111,15 @@ class MoviesByGenreCollection(Resource):
             genre=db_genre
         )
 
-        # set everything else for the new movie entry
-        for i in request.json:
-            setattr(movie, i, request.json[i])
+        # set other properties
+        for attr in Movie.get_schema_post()["properties"]:
+            try:
+                setattr(movie, attr, request.json[attr])
+            except KeyError:
+                return create_error_response(400,
+                    "Missing property in JSON file",
+                    "Property '{}' was not found".format(attr)
+                    )
 
         db.session.add(movie)
         db.session.commit()
@@ -125,8 +133,8 @@ class MoviesByGenreCollection(Resource):
 class SeriesByGenreCollection(Resource):
 
     def get(self, genre):
+        # check that genre exists
         db_genre = Genre.query.filter_by(name=genre).first()
-
         if db_genre is None:
             return create_error_response(404,
                 "Genre not found",
@@ -156,20 +164,22 @@ class SeriesByGenreCollection(Resource):
         return Response(json.dumps(body), 200, mimetype=MASON)
 
     def post(self, genre):
+        # check that genre exists
         db_genre = Genre.query.filter_by(name=genre).first()
-
         if db_genre is None:
             return create_error_response(404,
                 "Not found",
                 "Genre with name '{}' does not exist".format(genre)
             )
 
+        # check media type
         if not request.json:
             return create_error_response(
                 415, "Unsupported media type",
                 "Requests must be JSON"
             )
 
+        # validate JSON
         try:
             validate(request.json, Series.get_schema_post())
         except ValidationError as e:
@@ -181,9 +191,15 @@ class SeriesByGenreCollection(Resource):
             genre=db_genre
         )
 
-        # set everything else for the new movie entry
-        for i in request.json:
-            setattr(series, i, request.json[i])
+        # set other properties
+        for attr in Series.get_schema_post()["properties"]:
+            try:
+                setattr(series, attr, request.json[attr])
+            except KeyError:
+                return create_error_response(400,
+                    "Missing property in JSON file",
+                    "Property '{}' was not found".format(attr)
+                    )
 
         db.session.add(series)
         db.session.commit()
