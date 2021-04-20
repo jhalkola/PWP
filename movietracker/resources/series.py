@@ -53,7 +53,7 @@ class SeriesItem(Resource):
         )
         body.add_namespace("mt", LINK_RELATIONS_URL)
         body.add_control("self", url_for("api.seriesitem", series=db_series.uuid))
-        body.add_control("collection", url_for("api.seriesbygenrecollection", genre=db_series.genre.name))
+        body.add_control("collection", url_for("api.seriescollection"))
         body.add_control_series_by_genre(db_series.genre.name)
         body.add_control_edit(url_for("api.seriesitem", series=db_series.uuid), Series.get_schema_put())
         body.add_control_delete(url_for("api.seriesitem", series=db_series.uuid))

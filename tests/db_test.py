@@ -8,14 +8,14 @@ from movietracker import db, create_app
 from movietracker.utils import get_uuid
 from movietracker.models import Genre, Movie, Series
 
+# based on "sensorhub" example database test
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
 
-# based on http://flask.pocoo.org/docs/1.0/testing/
-# we don't need a client for database testing, just the db handle
+# based on "sensorhub" example database test
 @pytest.fixture
 def app():
     db_fd, db_fname = tempfile.mkstemp()

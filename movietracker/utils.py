@@ -3,7 +3,7 @@ import shortuuid
 from flask import Response, request, url_for
 from movietracker.constants import *
 
-
+# taken from https://github.com/JornWildt/Mason
 class MasonBuilder(dict):
     """
     A convenience class for managing dictionaries that represent Mason

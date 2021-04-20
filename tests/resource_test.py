@@ -5,18 +5,17 @@ import json
 from jsonschema import validate
 from sqlalchemy.engine import Engine
 from sqlalchemy import event
-from movietracker.utils import get_uuid
 from movietracker import db, create_app
 from movietracker.models import *
 
+# based on "sensorhub" example resource test
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
 
-# based on http://flask.pocoo.org/docs/1.0/testing/
-# we don't need a client for database testing, just the db handle
+# based on "sensorhub" example resource test
 @pytest.fixture
 def client():
     db_fd, db_fname = tempfile.mkstemp()
