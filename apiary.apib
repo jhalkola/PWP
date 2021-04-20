@@ -465,7 +465,7 @@ Get a list of movies belonging to one genre.
                                 },
                                 "actors": {
                                     "description": "Actors on the movie",
-                                    "type": "string"
+                                    "type": ["string", "null"]
                                 },
                                 "release_date": {
                                     "description": "Release date of the movie",
@@ -474,7 +474,7 @@ Get a list of movies belonging to one genre.
                                 },
                                 "score": {
                                     "description": "IMDb score of movie",
-                                    "type": "number"
+                                    "type": ["number", "null"]
                                 }
                             }
                         },
@@ -681,6 +681,7 @@ Get representation of a movie
                         "title": "Edit this item",
                         "schema": {
                             "type": "object",
+                            "required": ["title", "release_date", "genre"],
                             "additionalProperties": false,
                             "properties": {
                                 "title": {
@@ -689,7 +690,7 @@ Get representation of a movie
                                 },
                                 "actors": {
                                     "description": "Actors on the movie",
-                                    "type": "string"
+                                    "type": ["string", "null"]
                                 },
                                 "release_date": {
                                     "description": "Release date of the movie",
@@ -698,7 +699,7 @@ Get representation of a movie
                                 },
                                 "score": {
                                     "description": "IMDb score of movie",
-                                    "type": "number"
+                                    "type": ["number", "null"]
                                 },
                                 "genre": {
                                     "description": "Genre of the movie",
@@ -989,7 +990,7 @@ Get a list of series belonging to one genre.
                                 },
                                 "actors": {
                                     "description": "actors on the series",
-                                    "type": "string"
+                                    "type": ["string", "null"]
                                 },
                                 "release_date": {
                                     "description": "Release date of the series",
@@ -998,7 +999,7 @@ Get a list of series belonging to one genre.
                                 },
                                 "score": {
                                     "description": "IMDb score of the series",
-                                    "type": "number"
+                                    "type": ["number", "null"]
                                 },
                                 "seasons": {
                                     "description": "Number of seasons",
@@ -1209,6 +1210,7 @@ Get representation of a series
                         "title": "Edit this item",
                         "schema": {
                             "type": "object",
+                            "required": ["title", "release_date", "seasons", "genre"],
                             "additionalProperties": false,
                             "properties": {
                                 "title": {
@@ -1217,7 +1219,7 @@ Get representation of a series
                                 },
                                 "actors": {
                                     "description": "actors on the series",
-                                    "type": "string"
+                                    "type": ["string", "null"]
                                 },
                                 "release_date": {
                                     "description": "Release date of the series",
@@ -1226,7 +1228,7 @@ Get representation of a series
                                 },
                                 "score": {
                                     "description": "IMDb score of the series",
-                                    "type": "number"
+                                    "type": ["number", "null"]
                                 },
                                 "seasons": {
                                     "description": "Number of seasons",
