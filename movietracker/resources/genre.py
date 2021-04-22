@@ -75,7 +75,8 @@ class MoviesByGenreCollection(Resource):
                 title=db_movie.title,
                 actors=db_movie.actors,
                 release_date=db_movie.release_date,
-                score=db_movie.score
+                score=db_movie.score,
+                genre=db_movie.genre.name
             )
             item.add_control("self", url_for("api.movieitem", movie=db_movie.uuid))
             item.add_control("profile", MOVIE_PROFILE)
@@ -126,8 +127,7 @@ class MoviesByGenreCollection(Resource):
         
         return Response(status=201, headers={
                 "Location": url_for("api.movieitem", movie=movie.uuid)
-            }, mimetype=MASON
-            )
+            })
 
 
 class SeriesByGenreCollection(Resource):
@@ -155,7 +155,8 @@ class SeriesByGenreCollection(Resource):
                 actors=db_series.actors,
                 release_date=db_series.release_date,
                 score=db_series.score,
-                seasons=db_series.seasons
+                seasons=db_series.seasons,
+                genre=db_series.genre.name
             )
             item.add_control("self", url_for("api.seriesitem", series=db_series.uuid))
             item.add_control("profile", SERIES_PROFILE)
@@ -206,5 +207,4 @@ class SeriesByGenreCollection(Resource):
     
         return Response(status=201, headers={
             "Location": url_for("api.seriesitem", series=series.uuid)
-            }, mimetype=MASON
-            )
+            })

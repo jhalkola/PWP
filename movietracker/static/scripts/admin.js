@@ -1,10 +1,15 @@
 const DEBUG = true;
 const MASONJSON = "application/vnd.mason+json";
 const PLAINJSON = "application/json";
+const ENTRYPOINT = "http://127.0.0.1:5000/api/";
 
 function renderError(jqxhr) {
     let msg = jqxhr.responseJSON["@error"]["@message"];
-    $("div.notification").html("<p class='error'>" + msg + "</p>");
+    //let msgs = jqxhr.responseJSON["@error"]["@messages"];
+    $("div.notification").html(
+        "<p class='error'>" + msg + "</p>"
+        //"<p class='error'>" + msgs + "</p>" 
+        );
 }
 
 function renderMsg(msg) {
@@ -19,17 +24,17 @@ function getResource(href, renderer) {
     });
 }
 
-// function sendData(href, method, item, postProcessor) {
-//     $.ajax({
-//         url: href,
-//         type: method,
-//         data: JSON.stringify(item),
-//         contentType: PLAINJSON,
-//         processData: false,
-//         success: postProcessor,
-//         error: renderError
-//     });
-// }
+function sendData(href, method, item, postProcessor) {
+    $.ajax({
+        url: href,
+        type: method,
+        data: JSON.stringify(item),
+        contentType: PLAINJSON,
+        processData: false,
+        success: postProcessor,
+        error: renderError
+    });
+}
 
 function itemRow(item, type) {
     if (type == "movie") {
@@ -60,44 +65,54 @@ function itemRow(item, type) {
         let link = "<a href='" +
                     item["@controls"].self.href +
                     "' onClick='followLink(event, this, renderGenreItem)'>show</a>";
-        let name = item.name.charAt(0).toUpperCase() + item.name.slice(1)
-        return "<tr><td>" + name +
+        return "<tr><td>" + item.name +
                 "</td><td>" + link + "</td></tr>";
     }
 }
 
-function appendItemRow(body, type) {
+function appendItemRow(body) {
+    let form = $("div.form form");
+    type = form.attr("type")
     $(".resulttable tbody").append(itemRow(body, type));
 }
 
-// function getSubmittedSensor(data, status, jqxhr) {
-//     renderMsg("Successful");
-//     let href = jqxhr.getResponseHeader("Location");
-//     if (href) {
-//         getResource(href, appendSensorRow);
-//     }
-// }
+function getSubmittedItem(data, status, jqxhr) {
+    renderMsg("Successful");
+    let href = jqxhr.getResponseHeader("Location");
+    if (href) {
+        getResource(href, appendItemRow);
+    }
+}
 
 function followLink(event, a, renderer) {
     event.preventDefault();
     getResource($(a).attr("href"), renderer);
 }
 
-// function submitSensor(event) {
-//     event.preventDefault();
+function submitItem(event) {
+    event.preventDefault();
 
-//     let data = {};
-//     let form = $("div.form form");
-//     data.name = $("input[name='name']").val();
-//     data.model = $("input[name='model']").val();
-//     sendData(form.attr("action"), form.attr("method"), data, getSubmittedSensor);
-// }
+    let data = {};
+    let form = $("div.form form");
+    data.title = $("input[name='title']").val();
+    data.actors = $("input[name='actors']").val();
+    data.release_date = $("input[name='release_date']").val();
+    data.score = parseFloat($("input[name='score']").val());
+    if (form.attr("type") == "series") {
+        data.seasons = parseInt($("input[name='seasons']").val());
+    }
+    if (form.attr("method") == "PUT") {
+        data.genre = $("input[name='genre']").val(); 
+    }
+    sendData(form.attr("action"), form.attr("method"), data, getSubmittedItem);
+}
 
-function renderItemForm(ctrl) {
+function renderItemForm(ctrl, type) {
     let form = $("<form>");
     form.attr("action", ctrl.href);
     form.attr("method", ctrl.method);
-    //form.submit(submitSensor);
+    form.attr("type", type)
+    form.submit(submitItem);
     for (attr in ctrl.schema.properties) {
         prop = ctrl.schema.properties[attr]
         form.append("<label>" + prop.description + "</label>");
@@ -106,7 +121,10 @@ function renderItemForm(ctrl) {
     ctrl.schema.required.forEach(function (property) {
         $("input[name='" + property + "']").attr("required", true);
     });
-    //form.append("<input type='submit' name='submit' value='Submit'>");
+    form.append("<input type='submit' name='submit' value='Submit'>");
+    if (ctrl.method == "PUT") {
+        form.append("<input type='submit' name='delete' value='Delete'>");
+    }
     $("div.form").html(form);
 }
 
@@ -118,61 +136,25 @@ function renderMovieItem(body) {
         " | " +
         "<a href='" +
         body["@controls"]["mt:movies-by-genre"]["href"] +
-        "' onClick='followLink(event, this, renderMoviesByGenre)'>Movies by Genre</a>"
+        "' onClick='followLink(event, this, renderMoviesByGenre)'>" + body.genre + " Movies</a>"
     );
     $(".resulttable thead").empty();
     $(".resulttable tbody").empty();
-    renderItemForm(body["@controls"].edit);
+    renderItemForm(body["@controls"].edit, "movie");
     for (attr in body) {
         $("input[name=" + attr + "]").val(body[attr]);
     }
-    // $("form input[type='submit']").before(
-    //     "<label>Location</label>" +
-    //     "<input type='text' name='location' value='" +
-    //     body.location + "' readonly>"
-    // );
-}
-
-function renderSeriesItem(body) {
-    $("div.navigation").html(
-        "<a href='" +
-        body["@controls"]["collection"]["href"] +
-        "' onClick='followLink(event, this, renderSeries)'>All Series</a>" +
-        " | " +
-        "<a href='" +
-        body["@controls"]["mt:series-by-genre"]["href"] +
-        "' onClick='followLink(event, this, renderSeriesByGenre)'>Series by Genre</a>"
-    );
-    $(".resulttable thead").empty();
-    $(".resulttable tbody").empty();
-    renderItemForm(body["@controls"].edit);
-    for (attr in body) {
-        $("input[name=" + attr + "]").val(body[attr]);
-    }
-}
-
-function renderGenreItem(body) {
-    let name = body.name.charAt(0).toUpperCase() + body.name.slice(1)
-    $("div.navigation").html(
-        "<a href='" +
-        body["@controls"]["up"]["href"] +
-        "' onClick='followLink(event, this, renderGenres)'>All Genres</a><br>" +
-        "<a href='" +
-        body["@controls"]["mt:movies-by-genre"]["href"] +
-        "' onClick='followLink(event, this, renderMoviesByGenre)'>" + name + " Movies</a><br>" +
-        "<a href='" +
-        body["@controls"]["mt:series-by-genre"]["href"] +
-        "' onClick='followLink(event, this, renderSeriesByGenre)'>" + name + " Series</a>"
-    );
-    $(".resulttable thead").empty();
-    $(".resulttable tbody").empty();
 }
 
 function renderMovies(body) {
     $("div.navigation").html(
         "<a href='" +
         body["@controls"]["mt:all-genres"]["href"] +
-        "' onClick='followLink(event, this, renderGenres)'>All Genres</a>"
+        "' onClick='followLink(event, this, renderGenres)'>All Genres</a>" +
+        " | " +
+        "<a href='" +
+        ENTRYPOINT +
+        "' onClick='followLink(event, this, renderEntrypoint)'>Home Page</a>"
     );
     $("div.tablecontrols").empty();
     $(".resulttable thead").html(
@@ -183,14 +165,61 @@ function renderMovies(body) {
     body.items.forEach(function (item) {
         tbody.append(itemRow(item, "movie"));
     });
+    $("div.notification").empty();
     $("div.form").empty();
+}
+
+function renderMoviesByGenre(body) {
+    $("div.navigation").html(
+        "<a href='" +
+        body["@controls"]["up"]["href"] +
+        "' onClick='followLink(event, this, renderGenreItem)'>"  + body.name + " Genre</a>" + 
+        " | " +
+        "<a href='" +
+        ENTRYPOINT +
+        "' onClick='followLink(event, this, renderEntrypoint)'>Home Page</a>"
+    );
+    $("div.tablecontrols").empty();
+    $(".resulttable thead").html(
+        "<tr><th>Title</th><th>Actors</th><th>Release Date</th><th>Score</th><th>Genre</th></tr>"
+    );
+    let tbody = $(".resulttable tbody");
+    tbody.empty();
+    body.items.forEach(function (item) {
+        tbody.append(itemRow(item, "movie"));
+    });
+    $("div.notification").empty();
+    renderItemForm(body["@controls"]["mt:add-movie"], "movie");
+}
+
+function renderSeriesItem(body) {
+    $("div.navigation").html(
+        "<a href='" +
+        body["@controls"]["collection"]["href"] +
+        "' onClick='followLink(event, this, renderSeries)'>All Series</a>" +
+        " | " +
+        "<a href='" +
+        body["@controls"]["mt:series-by-genre"]["href"] +
+        "' onClick='followLink(event, this, renderSeriesByGenre)'>" + body.genre + " Series</a>"
+    );
+    $(".resulttable thead").empty();
+    $(".resulttable tbody").empty();
+    $("div.notification").empty();
+    renderItemForm(body["@controls"].edit, "series");
+    for (attr in body) {
+        $("input[name=" + attr + "]").val(body[attr]);
+    }
 }
 
 function renderSeries(body) {
     $("div.navigation").html(
         "<a href='" +
         body["@controls"]["mt:all-genres"]["href"] +
-        "' onClick='followLink(event, this, renderGenres)'>All Genres</a>"
+        "' onClick='followLink(event, this, renderGenres)'>All Genres</a>" +
+        " | " +
+        "<a href='" +
+        ENTRYPOINT +
+        "' onClick='followLink(event, this, renderEntrypoint)'>Home Page</a>"
     );
     $("div.tablecontrols").empty();
     $(".resulttable thead").html(
@@ -201,6 +230,51 @@ function renderSeries(body) {
     body.items.forEach(function (item) {
         tbody.append(itemRow(item, "series"));
     });
+    $("div.notification").empty();
+    $("div.form").empty();
+}
+
+function renderSeriesByGenre(body) {
+    $("div.navigation").html(
+        "<a href='" +
+        body["@controls"]["up"]["href"] +
+        "' onClick='followLink(event, this, renderGenreItem)'>"  + body.name + " Genre</a>" +
+        " | " +
+        "<a href='" +
+        ENTRYPOINT +
+        "' onClick='followLink(event, this, renderEntrypoint)'>Home Page</a>"
+    );
+    $("div.tablecontrols").empty();
+    $(".resulttable thead").html(
+        "<tr><th>Title</th><th>Actors</th><th>Release Date</th><th>Score</th><th>Seasons</th><th>Genre</th></tr>"
+    );
+    let tbody = $(".resulttable tbody");
+    tbody.empty();
+    body.items.forEach(function (item) {
+        tbody.append(itemRow(item, "series"));
+    });
+    $("div.notification").empty();
+    renderItemForm(body["@controls"]["mt:add-series"], "series");
+}
+
+function renderGenreItem(body) {
+    $("div.navigation").html(
+        "<a href='" +
+        body["@controls"]["up"]["href"] +
+        "' onClick='followLink(event, this, renderGenres)'>All Genres</a><br>" +
+        "<a href='" +
+        body["@controls"]["mt:movies-by-genre"]["href"] +
+        "' onClick='followLink(event, this, renderMoviesByGenre)'>" + body.name + " Movies</a><br>" +
+        "<a href='" +
+        body["@controls"]["mt:series-by-genre"]["href"] +
+        "' onClick='followLink(event, this, renderSeriesByGenre)'>" + body.name + " Series</a><br>" +
+        "<a href='" +
+        ENTRYPOINT +
+        "' onClick='followLink(event, this, renderEntrypoint)'>Home Page</a>"
+    );
+    $(".resulttable thead").empty();
+    $(".resulttable tbody").empty();
+    $("div.notification").empty();
     $("div.form").empty();
 }
 
@@ -212,9 +286,14 @@ function renderGenres(body) {
         " | " +
         "<a href='" +
         body["@controls"]["mt:all-series"]["href"] +
-        "' onClick='followLink(event, this, renderSeries)'>All Series</a>"
+        "' onClick='followLink(event, this, renderSeries)'>All Series</a>" +
+        " | " +
+        "<a href='" +
+        ENTRYPOINT +
+        "' onClick='followLink(event, this, renderEntrypoint)'>Home Page</a>"
     );
     $("div.tablecontrols").empty();
+    $("div.notification").empty();
     $(".resulttable thead").html(
         "<tr><th>Name</th></tr>"
     );
@@ -237,8 +316,12 @@ function renderEntrypoint(body) {
         body["@controls"]["mt:all-genres"]["href"] +
         "' onClick='followLink(event, this, renderGenres)'>All Genres</a>"
     );
+    $(".resulttable thead").empty();
+    $(".resulttable tbody").empty();
+    $("div.notification").empty();
+    $("div.form").empty();
 }
 
 $(document).ready(function () {
-    getResource("http://127.0.0.1:5000/api/", renderEntrypoint);
+    getResource(ENTRYPOINT, renderEntrypoint);
 });

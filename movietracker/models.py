@@ -32,7 +32,8 @@ class Movie(db.Model):
         props = schema["properties"] = {}
         props["title"] = {
             "description": "Movie name",
-            "type": "string"
+            "type": "string",
+            "minLength": 1
         }
         props["actors"] =  {
             "description": "Actors on the movie",
@@ -59,7 +60,8 @@ class Movie(db.Model):
         props = schema["properties"] = {}
         props["title"] = {
             "description": "Movie name",
-            "type": "string"
+            "type": "string",
+            "minLength": 1
         }
         props["actors"] =  {
             "description": "Actors on the movie",
@@ -103,7 +105,8 @@ class Series(db.Model):
         props = schema["properties"] = {}
         props["title"] = {
             "description": "Series name",
-            "type": "string"
+            "type": "string",
+            "minLength": 1
         }
         props["actors"] =  {
             "description": "Actors on the series",
@@ -134,7 +137,8 @@ class Series(db.Model):
         props = schema["properties"] = {}
         props["title"] = {
             "description": "Series name",
-            "type": "string"
+            "type": "string",
+            "minLength": 1
         }
         props["actors"] =  {
             "description": "Actors on the series",
@@ -169,7 +173,7 @@ def init_db_command():
 @with_appcontext
 def generate_test_data():
     # add genres to test db
-    genres = ["action", "crime", "romance", "drama", "horror", "fantasy"]
+    genres = ["Action", "Crime", "Romance", "Drama", "Horror", "Fantasy"]
     for g in genres:
         db.session.add(Genre(name=g))
     db.session.commit()
@@ -180,14 +184,14 @@ def generate_test_data():
         actors="Robert Downey Jr.",
         release_date="2012-04-11",
         score=8.0,
-        genre=Genre.query.filter_by(name="action").first()
+        genre=Genre.query.filter_by(name="Action").first()
     ))
     db.session.add(Movie(
         title="Sherlock Holmes",
         uuid=get_uuid(),
         actors="Robert Downey Jr.",
         release_date="2009-12-25",
-        genre=Genre.query.filter_by(name="crime").first()
+        genre=Genre.query.filter_by(name="Crime").first()
     ))
 
     db.session.add(Series(
@@ -196,7 +200,7 @@ def generate_test_data():
             release_date="2008-01-20",
             score=9.5,
             seasons=5,
-            genre=Genre.query.filter_by(name="crime").first()
+            genre=Genre.query.filter_by(name="Crime").first()
     ))
     db.session.add(Series(
             title="Game of Thrones",
@@ -205,6 +209,6 @@ def generate_test_data():
             release_date="2011-04-17",
             score=9.5,
             seasons=8,
-            genre=Genre.query.filter_by(name="fantasy").first()
+            genre=Genre.query.filter_by(name="Fantasy").first()
     ))
     db.session.commit()
