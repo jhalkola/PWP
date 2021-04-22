@@ -54,14 +54,16 @@ Add more information to REST conformance part in wiki.
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
 
 ## Meeting 4.
-* **DATE:**
-* **ASSISTANTS:**
+* **DATE: 13.4.2021**
+* **ASSISTANTS: Mika Oja**
 
 ### Minutes
-*Summary of what was discussed during the meeting*
+We went through our API implementation and code. API tests were shown and we discussed about how to correctly implement PUT method, as our implementation was not entirely correct.
 
 ### Action points
-*List here the actions points discussed with assistants*
+Comment where parts of code was taken from  
+Remoce location header from PUT response  
+Change PUT request to only take in full JSON according to schema  
 
 
 ### Comments from staff
