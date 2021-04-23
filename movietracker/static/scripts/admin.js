@@ -3,6 +3,7 @@ const MASONJSON = "application/vnd.mason+json";
 const PLAINJSON = "application/json";
 const ENTRYPOINT = "http://127.0.0.1:5000/api/";
 
+// from "sensorhub" example
 function renderError(jqxhr) {
     let msg = jqxhr.responseJSON["@error"]["@message"];
     //let msgs = jqxhr.responseJSON["@error"]["@messages"];
@@ -12,10 +13,12 @@ function renderError(jqxhr) {
         );
 }
 
+// from "sensorhub" example
 function renderMsg(msg) {
     $("div.notification").html("<p class='msg'>" + msg + "</p>");
 }
 
+// from "sensorhub" example
 function getResource(href, renderer) {
     $.ajax({
         url: href,
@@ -24,6 +27,7 @@ function getResource(href, renderer) {
     });
 }
 
+// from "sensorhub" example
 function sendData(href, method, item, postProcessor) {
     $.ajax({
         url: href,
@@ -86,6 +90,7 @@ function appendItemRow(body) {
     $(".resulttable tbody").append(itemRow(body, type));
 }
 
+// from "sensorhub" example
 function getSubmittedItem(data, status, jqxhr) {
     renderMsg("Successful");
     let href = jqxhr.getResponseHeader("Location");
@@ -111,6 +116,7 @@ function getAfterDelete(data, status, jqxhr) {
     }
 }
 
+// from "sensorhub" example
 function followLink(event, a, renderer) {
     event.preventDefault();
     getResource($(a).attr("href"), renderer);
@@ -129,7 +135,7 @@ function submitItem(event) {
         data.seasons = parseInt($("input[name='seasons']").val());
     }
     if (form.attr("method") == "PUT") {
-        data.genre = $("input[name='genre']").val(); 
+        data.genre = $("input[name='genre']").val();
     }
     sendData(form.attr("action"), form.attr("method"), data, getSubmittedItem);
 }
