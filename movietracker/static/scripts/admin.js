@@ -95,11 +95,6 @@ function getSubmittedItem(data, status, jqxhr) {
 }
 
 function getAfterDelete(data, status, jqxhr) {
-    let form = $("div.form form");
-    type = form.attr("type")
-
-    renderMsg(type + " Deleted");
-    
     let href = $(document).attr("lastLocation")[0]
     let name = $(document).attr("lastLocation")[1]
     if (name == "movies") {
@@ -160,7 +155,7 @@ function renderItemForm(ctrl, type) {
     ctrl.schema.required.forEach(function (property) {
         $("input[name='" + property + "']").attr("required", true);
     });
-    form.append("<input type='submit' name='action' value='Submit'>");
+    form.append("<input type='submit' name='action' value='Save'>");
     if (ctrl.method == "PUT") {
         form.append("<input type='button' value='Delete' onClick='deleteItem(event)'>");
     }
@@ -205,6 +200,11 @@ function renderMovies(body) {
     let tbody = $(".resulttable tbody");
     tbody.empty();
     body.items.forEach(function (item) {
+        for (i in item) {
+            if (item[i] === null) {
+                item[i] = "";
+            }
+        }
         tbody.append(itemRow(item, "movie"));
     });
     $(document).attr("lastLocation", [body["@controls"].self.href, "movies"])
@@ -230,6 +230,11 @@ function renderMoviesByGenre(body) {
     let tbody = $(".resulttable tbody");
     tbody.empty();
     body.items.forEach(function (item) {
+        for (i in item) {
+            if (item[i] === null) {
+                item[i] = "";
+            }
+        }
         tbody.append(itemRow(item, "movie"));
     });
     $(document).attr("lastLocation", [body["@controls"].self.href, "moviesbygenre"])
@@ -252,6 +257,9 @@ function renderSeriesItem(body) {
     $("div.notification").empty();
     renderItemForm(body["@controls"].edit, "series");
     for (attr in body) {
+        if ((attr == "@namespaces") || (attr == "@controls")) {
+            continue
+        }
         $("input[name=" + attr + "]").val(body[attr]);
     }
 }
@@ -273,6 +281,11 @@ function renderSeries(body) {
     let tbody = $(".resulttable tbody");
     tbody.empty();
     body.items.forEach(function (item) {
+        for (i in item) {
+            if (item[i] === null) {
+                item[i] = "";
+            }
+        }
         tbody.append(itemRow(item, "series"));
     });
     $(document).attr("lastLocation", [body["@controls"].self.href, "series"])
@@ -297,6 +310,11 @@ function renderSeriesByGenre(body) {
     let tbody = $(".resulttable tbody");
     tbody.empty();
     body.items.forEach(function (item) {
+        for (i in item) {
+            if (item[i] === null) {
+                item[i] = "";
+            }
+        }
         tbody.append(itemRow(item, "series"));
     });
     $(document).attr("lastLocation", [body["@controls"].self.href, "seriesbygenre"])
@@ -347,6 +365,11 @@ function renderGenres(body) {
     let tbody = $(".resulttable tbody");
     tbody.empty();
     body.items.forEach(function (item) {
+        for (i in item) {
+            if (item[i] === null) {
+                item[i] = "";
+            }
+        }
         tbody.append(itemRow(item, "genre"));
     });
 }
