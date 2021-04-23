@@ -11,6 +11,11 @@ __Remember to include all required documentation and HOWTOs, including how to cr
 
 API documentation can be found from [Apiary](https://movietrackerapi.docs.apiary.io/#).
 
+## Dependencies
+
+Jquery external library file can found in movietracker/static/scripts/ which includes all needed information about the library.
+All other libraries and their versions can be found from requirement.txt.
+
 ## Setup Instructions
 
 Requirements.txt has all the needed libraries and Setup.py sets required settings for pytest to run. To install everything required, run command `python -m pip install .` while in folder where requirements.txt and setup.py are located.
