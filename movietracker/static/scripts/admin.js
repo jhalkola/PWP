@@ -36,11 +36,21 @@ function sendData(href, method, item, postProcessor) {
     });
 }
 
+function deleteData(href, postProcessor) {
+    $.ajax({
+        url: href,
+        type: "DELETE",
+        processData: false,
+        success: postProcessor,
+        error: renderError
+    });
+}
+
 function itemRow(item, type) {
     if (type == "movie") {
         let link = "<a href='" +
                     item["@controls"].self.href +
-                    "' onClick='followLink(event, this, renderMovieItem)'>show</a>";
+                    "' onClick='followLink(event, this, renderMovieItem)'>Edit</a>";
         return "<tr><td>" + item.title +
                 "</td><td>" + item.actors +
                 "</td><td>" + item.release_date +
@@ -51,7 +61,7 @@ function itemRow(item, type) {
     else if (type == "series") {
         let link = "<a href='" +
                     item["@controls"].self.href +
-                    "' onClick='followLink(event, this, renderSeriesItem)'>show</a>";
+                    "' onClick='followLink(event, this, renderSeriesItem)'>Edit</a>";
     
         return "<tr><td>" + item.title +
                 "</td><td>" + item.actors +
@@ -64,7 +74,7 @@ function itemRow(item, type) {
     else {
         let link = "<a href='" +
                     item["@controls"].self.href +
-                    "' onClick='followLink(event, this, renderGenreItem)'>show</a>";
+                    "' onClick='followLink(event, this, renderGenreItem)'>Edit</a>";
         return "<tr><td>" + item.name +
                 "</td><td>" + link + "</td></tr>";
     }
@@ -84,6 +94,28 @@ function getSubmittedItem(data, status, jqxhr) {
     }
 }
 
+function getAfterDelete(data, status, jqxhr) {
+    let form = $("div.form form");
+    type = form.attr("type")
+
+    renderMsg(type + " Deleted");
+    
+    let href = $(document).attr("lastLocation")[0]
+    let name = $(document).attr("lastLocation")[1]
+    if (name == "movies") {
+        getResource(href, renderMovies);
+    }
+    else if (name == "moviesbygenre") {
+        getResource(href, renderMoviesByGenre);
+    }
+    else if (name == "series") {
+        getResource(href, renderSeries);
+    }
+    else if (name == "seriesbygenre") {
+        getResource(href, renderSeriesByGenre);
+    }
+}
+
 function followLink(event, a, renderer) {
     event.preventDefault();
     getResource($(a).attr("href"), renderer);
@@ -92,8 +124,8 @@ function followLink(event, a, renderer) {
 function submitItem(event) {
     event.preventDefault();
 
-    let data = {};
     let form = $("div.form form");
+    let data = {};
     data.title = $("input[name='title']").val();
     data.actors = $("input[name='actors']").val();
     data.release_date = $("input[name='release_date']").val();
@@ -105,6 +137,13 @@ function submitItem(event) {
         data.genre = $("input[name='genre']").val(); 
     }
     sendData(form.attr("action"), form.attr("method"), data, getSubmittedItem);
+}
+
+function deleteItem(event) {
+    event.preventDefault();
+
+    let form = $("div.form form");
+    deleteData(form.attr("action"), getAfterDelete);
 }
 
 function renderItemForm(ctrl, type) {
@@ -121,9 +160,9 @@ function renderItemForm(ctrl, type) {
     ctrl.schema.required.forEach(function (property) {
         $("input[name='" + property + "']").attr("required", true);
     });
-    form.append("<input type='submit' name='submit' value='Submit'>");
+    form.append("<input type='submit' name='action' value='Submit'>");
     if (ctrl.method == "PUT") {
-        form.append("<input type='submit' name='delete' value='Delete'>");
+        form.append("<input type='button' value='Delete' onClick='deleteItem(event)'>");
     }
     $("div.form").html(form);
 }
@@ -142,6 +181,9 @@ function renderMovieItem(body) {
     $(".resulttable tbody").empty();
     renderItemForm(body["@controls"].edit, "movie");
     for (attr in body) {
+        if ((attr == "@namespaces") || (attr == "@controls")) {
+            continue
+        }
         $("input[name=" + attr + "]").val(body[attr]);
     }
 }
@@ -165,6 +207,8 @@ function renderMovies(body) {
     body.items.forEach(function (item) {
         tbody.append(itemRow(item, "movie"));
     });
+    $(document).attr("lastLocation", [body["@controls"].self.href, "movies"])
+    
     $("div.notification").empty();
     $("div.form").empty();
 }
@@ -188,6 +232,7 @@ function renderMoviesByGenre(body) {
     body.items.forEach(function (item) {
         tbody.append(itemRow(item, "movie"));
     });
+    $(document).attr("lastLocation", [body["@controls"].self.href, "moviesbygenre"])
     $("div.notification").empty();
     renderItemForm(body["@controls"]["mt:add-movie"], "movie");
 }
@@ -230,6 +275,7 @@ function renderSeries(body) {
     body.items.forEach(function (item) {
         tbody.append(itemRow(item, "series"));
     });
+    $(document).attr("lastLocation", [body["@controls"].self.href, "series"])
     $("div.notification").empty();
     $("div.form").empty();
 }
@@ -253,6 +299,7 @@ function renderSeriesByGenre(body) {
     body.items.forEach(function (item) {
         tbody.append(itemRow(item, "series"));
     });
+    $(document).attr("lastLocation", [body["@controls"].self.href, "seriesbygenre"])
     $("div.notification").empty();
     renderItemForm(body["@controls"]["mt:add-series"], "series");
 }
