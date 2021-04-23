@@ -34,3 +34,7 @@ To start development server, use `flask run`. Environmental variables FLASK_APP 
 To run the database and API pytests, run command `pytest --disable-pytest-warnings` in the "tests" folder.  
 To run pytest with coverage, use `pytest --disable-pytest-warnings --cov-report term-missing --cov=movietracker`.  
 --disable-pytest-warnings is used to make the test output a bit cleaner, as pytest wants to show bunch of deprecation warnings which have nothing to do with our tests.
+
+## Client
+
+To test the client, do as setup instructions says, after which you can start the flask server with `flask run`. You can access the client from web browser (only Firefox and Chrome tested to work) via `http://127.0.0.1:5000/` and start to explore the client.
